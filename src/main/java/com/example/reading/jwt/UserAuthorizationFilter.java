@@ -31,7 +31,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Slf4j
 public class UserAuthorizationFilter extends OncePerRequestFilter {
     @Value("${reading.app.jwtSecret}")
-    private  String SECRET;
+    private  String SECRET = "readingSecretKey";
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         if(request.getServletPath().equals("api/login") ||

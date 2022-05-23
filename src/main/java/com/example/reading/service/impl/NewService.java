@@ -1,5 +1,6 @@
 package com.example.reading.service.impl;
 
+import com.example.reading.api.output.MessageResponse;
 import com.example.reading.repository.converter.NewConverter;
 import com.example.reading.dto.NewDTO;
 import com.example.reading.entity.CategoryEntity;
@@ -42,10 +43,11 @@ public class NewService implements INewService {
     }
 
     @Override
-    public void delete(long[] ids) {
+    public String delete(long[] ids) {
         for(long item: ids){
             newRepository.deleteById(item);
         }
+        return "Items has been deleted";
     }
 
     @Override

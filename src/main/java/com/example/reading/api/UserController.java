@@ -8,6 +8,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.reading.api.input.RoleToUserForm;
 import com.example.reading.api.input.SignUpRequest;
 import com.example.reading.api.output.MessageResponse;
+import com.example.reading.api.output.ResponseObject;
 import com.example.reading.api.output.UserOutPut;
 import com.example.reading.dto.RoleDTO;
 import com.example.reading.dto.UserDTO;
@@ -20,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -44,6 +46,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+@CrossOrigin
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
@@ -97,7 +100,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> authenticateUser(@Validated @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<ResponseObject> authenticateUser(@Validated @RequestBody LoginRequest loginRequest) {
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUserName(), loginRequest.getPassWord()));
@@ -110,15 +113,18 @@ public class UserController {
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(new UserOutPut(jwt,
-                reJwt,
-                "Bearer",
-                userDetails.getUsername(),
-                roles));
+        return ResponseEntity.ok().body(new ResponseObject("ok",
+                "Login successfully",
+                new UserOutPut(jwt,
+                        reJwt,
+                        "Bearer",
+                        userDetails.getUsername(),
+                        roles)));
 
     }
 
     @GetMapping("/users")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<UserDTO>> getUser(){
         return ResponseEntity.ok().body(userService.getUsers());
     }

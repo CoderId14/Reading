@@ -8,7 +8,7 @@ import java.util.List;
 public interface INewService {
     NewDTO save(NewDTO newDTO);
     NewDTO update(NewDTO newDTO);
-    void delete(long[] ids);
+    String delete(long[] ids);
     List<NewDTO> findAll(Pageable pageable);
     int totalItem();
 }
