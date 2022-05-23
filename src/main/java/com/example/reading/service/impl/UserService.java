@@ -1,5 +1,7 @@
 package com.example.reading.service.impl;
 
+import com.example.reading.api.input.SignUpRequest;
+import com.example.reading.api.output.MessageResponse;
 import com.example.reading.dto.RoleDTO;
 import com.example.reading.entity.RoleEntity;
 import com.example.reading.repository.RoleRepository;
@@ -12,6 +14,7 @@ import com.example.reading.repository.UserRepository;
 import com.example.reading.service.IUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -19,11 +22,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.management.relation.RoleNotFoundException;
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Transactional
@@ -54,9 +55,8 @@ public class UserService implements IUserService,UserDetailsService {
 
     @Override
     public UserDTO findByUserName(String userName) {
-        return null;
+        return userConverter.toDTO(userRepository.findByUserName(userName).get());
     }
-
 
     @Override
     public RoleDTO saveRole(RoleDTO role) {
@@ -70,9 +70,28 @@ public class UserService implements IUserService,UserDetailsService {
     public void addRoleToUser(String userName, String roleName) {
         log.info("Adding role {} to user {}",roleName,userName);
         Optional<UserEntity> user = userRepository.findByUserName(userName);
-        RoleEntity role = roleRepository.findByName(roleName);
+        Optional<RoleEntity> role = roleRepository.findByName(roleName);
         if(user.isPresent()){
-            user.get().getRoles().add(role);
+            user.get().getRoles().add(role.get());
+        }
+        else{
+            log.error("User not found in the database");
+            throw new UsernameNotFoundException("User not found in the database");
+        }
+    }
+
+    @Override
+    public void addRoleToUser(String userName, Set<String> roleName) {
+        log.info("Adding role {} to user {}",roleName,userName);
+        Optional<UserEntity> user = userRepository.findByUserName(userName);
+        Set<RoleEntity> roles = new HashSet<>();
+        roleName.forEach(role ->{
+            roles.add(roleRepository.findByName(role).get());
+        });
+        if(user.isPresent()){
+            roles.forEach(role ->{
+                user.get().getRoles().add(role);
+            });
         }
         else{
             log.error("User not found in the database");
@@ -105,6 +124,23 @@ public class UserService implements IUserService,UserDetailsService {
         return result;
 
     }
+
+    @Override
+    public boolean existsByUserName(String userName) {
+        return userRepository.existsByUserName(userName);
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+    @Override
+    public UserDTO registerUser(SignUpRequest signUpRequest) {
+        return null;
+    }
+
+
 
 
     @Override

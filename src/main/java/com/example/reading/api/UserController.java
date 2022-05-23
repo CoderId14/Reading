@@ -6,12 +6,15 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.reading.api.input.RoleToUserForm;
+import com.example.reading.api.input.SignUpRequest;
+import com.example.reading.api.output.MessageResponse;
 import com.example.reading.api.output.UserOutPut;
 import com.example.reading.dto.RoleDTO;
 import com.example.reading.dto.UserDTO;
 import com.example.reading.entity.RoleEntity;
 import com.example.reading.jwt.JwtUtils;
 import com.example.reading.api.input.LoginRequest;
+import com.example.reading.service.impl.RoleService;
 import com.example.reading.service.impl.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +29,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.management.relation.RoleNotFoundException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -47,10 +51,50 @@ public class UserController {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
+    private final RoleService roleService;
     @Value("${reading.app.jwtSecret}")
     private  String jwtSecret;
     @Value("${reading.app.jwtExpirationMs}")
     private int jwtExpirationMs;
+
+    @PostMapping("/register")
+    public ResponseEntity<?> registerUser(@Validated @RequestBody SignUpRequest signUpRequest) throws RoleNotFoundException {
+        if(userService.existsByUserName(signUpRequest.getUserName())){
+            ResponseEntity.badRequest()
+                    .body(new MessageResponse("Error: Username already exists"));
+        }
+        if(userService.existsByEmail(signUpRequest.getEmail())){
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("Error: Email already exists"));
+        }
+        UserDTO user = new UserDTO(signUpRequest.getUserName(),signUpRequest.getPassWord(),
+                null,true,signUpRequest.getEmail(),null);
+        Set<String> strRoles = signUpRequest.getRoles();
+        Set<RoleEntity> roles = new HashSet<>();
+        if (strRoles == null) {
+            RoleEntity userRole = roleService.findByName("ROLE_USER")
+                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+            roles.add(userRole);
+        } else {
+            strRoles.forEach(role -> {
+                switch (role) {
+                    case "ROLE_ADMIN":
+                        RoleEntity adminRole = roleService.findByName("ROLE_ADMIN")
+                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        roles.add(adminRole);
+                        break;
+                    default:
+                        RoleEntity userRole = roleService.findByName("ROLE_USER")
+                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                        roles.add(userRole);
+                }
+            });
+        }
+        user.setRoles(roles);
+        userService.save(user);
+        userService.addRoleToUser(signUpRequest.getUserName(),strRoles);
+        return ResponseEntity.ok(new MessageResponse("User register successfully!"));
+    }
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Validated @RequestBody LoginRequest loginRequest) {
@@ -73,7 +117,6 @@ public class UserController {
                 roles));
 
     }
-
 
     @GetMapping("/users")
     public ResponseEntity<List<UserDTO>> getUser(){

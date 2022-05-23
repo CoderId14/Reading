@@ -24,16 +24,16 @@ public class UserEntity extends BaseEntity {
     private String passWord;
     @Column
     private String email;
-    @Column
+    @Column(columnDefinition = "varchar(50) default 'Nguyen Van A'")
     private String fullName;
-    @Column
-    private Integer status;
+    @Column(columnDefinition = "boolean default true")
+    private boolean status;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private List<RoleEntity> roles = new ArrayList<>();
+    private Set<RoleEntity> roles = new HashSet<>();
 
     @ManyToMany
     @JoinTable(name = "user_new",
