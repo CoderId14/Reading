@@ -11,6 +11,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 @CrossOrigin
 @RestController("/api")
@@ -38,9 +41,9 @@ public class NewController {
 
     @PostMapping("/new")
     public ResponseEntity<ResponseObject> saveNew(@RequestBody NewDTO model) {
-
-        return ResponseEntity.ok().body(new ResponseObject(
-                "ok",
+        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/new").toUriString());
+        return ResponseEntity.created(uri).body(new ResponseObject(
+                "created",
                 "Save new successfully",
                 newService.save(model))) ;
     }
@@ -48,8 +51,9 @@ public class NewController {
     @PutMapping("/new/{id}")
     public ResponseEntity<ResponseObject> updateNew(@RequestBody NewDTO model, @PathVariable("id") long id) {
         model.setId(id);
-        return ResponseEntity.ok().body(new ResponseObject(
-                "ok",
+        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/new/{id}").toUriString());
+        return ResponseEntity.created(uri).body(new ResponseObject(
+                "update",
                 "Update new successfully id = "+id,
                 newService.update(model))) ;
     }

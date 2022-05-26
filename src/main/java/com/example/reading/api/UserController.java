@@ -140,9 +140,14 @@ public class UserController {
         return ResponseEntity.created(uri).body(userService.saveRole(roleDTO));
     }
     @PostMapping("/role/addtouser")
-    public void addRoleToUser(@RequestBody RoleToUserForm form){
-        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/role/save").toUriString());
+    public ResponseEntity<ResponseObject> addRoleToUser(@RequestBody RoleToUserForm form){
+        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/role/addtouser").toUriString());
         userService.addRoleToUser(form.getUserName(), form.getRole());
+        return ResponseEntity.created(uri).body(new ResponseObject(
+                "created",
+                "Add role " + form.getRole() + " user " + form.getUserName(),
+                null
+        ));
     }
     @PostMapping("/token/refresh")
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
