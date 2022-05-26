@@ -16,9 +16,9 @@ import java.util.Set;
 public class UserDTO extends AbstractDTO<UserDTO>{
 
 
-    private String userName;
+    private String username;
 
-    private String passWord;
+    private String password;
     private String fullName = "null";
     private boolean status = true;
 

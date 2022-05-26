@@ -3,9 +3,15 @@ package com.example.reading.config;
 
 import com.example.reading.jwt.AuthEntryPointJwt;
 import com.example.reading.jwt.JwtAuthenticationFilter;
+import com.example.reading.jwt.JwtTokenProvider;
+import com.example.reading.repository.UserRepository;
+import com.example.reading.service.impl.UserService;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -27,14 +33,20 @@ import static org.springframework.http.HttpMethod.POST;
 @RequiredArgsConstructor
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    private final UserDetailsService userDetailsService;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final UserService userService;
     private final AuthEntryPointJwt authEntryPointJwt;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
 
+
+
+    @Bean
+    public PasswordEncoder passwordEncoder(){
+        return new BCryptPasswordEncoder();
+    }
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder);
+        auth.userDetailsService(userService).passwordEncoder(passwordEncoder());
     }
 
     @Override
@@ -42,13 +54,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable()
                 .exceptionHandling()
                 .authenticationEntryPoint(authEntryPointJwt)
-                .and()
+                    .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
+                    .and()
                 .authorizeRequests()
-                .antMatchers("/api/login/**", "/api/token/refresh/**","/login").permitAll()
-                .antMatchers(GET, "/api/user/**").hasAnyAuthority("ROLE_USER")
+                .antMatchers("/api/auth/**", "/api/token/refresh/**","/login").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/**").permitAll()
                 .antMatchers(POST, "/api/user/save/**").hasAnyAuthority("ROLE_ADMIN")
                 .anyRequest().permitAll();
 //        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
@@ -57,7 +69,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //        http.authorizeRequests().antMatchers(POST, "/api/user/save/**").hasAnyAuthority("ROLE_ADMIN");
 //        http.authorizeRequests().anyRequest().permitAll();
 
-        http.addFilterBefore(new JwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
 //        http.addFilterBefore(new AuthTokenFilter(), UsernamePasswordAuthenticationFilter.class);
     }
@@ -66,10 +78,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public AuthenticationManager authenticationManagerBean() throws Exception{
         return super.authenticationManagerBean();
     }
-    @Bean
-    PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
-    }
+
+
 
 
 }

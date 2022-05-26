@@ -23,11 +23,9 @@ public class UserPrincipal implements UserDetails {
 
 	private Long id;
 
-
 	private String fullName;
 
 	private String username;
-
 
 	private boolean status;
 
@@ -41,22 +39,19 @@ public class UserPrincipal implements UserDetails {
 
 
 
-
 	public static UserPrincipal create(UserEntity user) {
 		List<GrantedAuthority> authorities = user.getRoles().stream()
 				.map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
 
-		return new UserPrincipal(user.getId(), user.getFullName(), user.getUsername(), user.isStatus(),
-				user.getEmail(), user.getPassword(), authorities);
+		return new UserPrincipal(user.getId(),
+				user.getFullName(),
+				user.getUsername(),
+				user.isStatus(),
+				user.getEmail(),
+				user.getPassword(),
+				authorities);
 	}
 
-	public Long getId() {
-		return id;
-	}
-
-	public String getEmail() {
-		return email;
-	}
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -6,15 +6,10 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.reading.api.input.RoleToUserForm;
-import com.example.reading.api.input.SignUpRequest;
-import com.example.reading.api.output.MessageResponse;
 import com.example.reading.api.output.ResponseObject;
-import com.example.reading.api.output.UserOutPut;
 import com.example.reading.dto.RoleDTO;
 import com.example.reading.dto.UserDTO;
 import com.example.reading.entity.RoleEntity;
-import com.example.reading.jwt.JwtUtils;
-import com.example.reading.api.input.LoginRequest;
 import com.example.reading.service.impl.RoleService;
 import com.example.reading.service.impl.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,15 +18,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.management.relation.RoleNotFoundException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -53,75 +42,12 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class UserController {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
-    private final JwtUtils jwtUtils;
     private final RoleService roleService;
     @Value("${reading.app.jwtSecret}")
     private  String jwtSecret;
     @Value("${reading.app.jwtExpirationMs}")
     private int jwtExpirationMs;
 
-    @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@Validated @RequestBody SignUpRequest signUpRequest) throws RoleNotFoundException {
-        if(userService.existsByUserName(signUpRequest.getUserName())){
-            ResponseEntity.badRequest()
-                    .body(new MessageResponse("Error: Username already exists"));
-        }
-        if(userService.existsByEmail(signUpRequest.getEmail())){
-            return ResponseEntity.badRequest()
-                    .body(new MessageResponse("Error: Email already exists"));
-        }
-        UserDTO user = new UserDTO(signUpRequest.getUserName(),signUpRequest.getPassWord(),
-                null,true,signUpRequest.getEmail(),null);
-        Set<String> strRoles = signUpRequest.getRoles();
-        Set<RoleEntity> roles = new HashSet<>();
-        if (strRoles == null) {
-            RoleEntity userRole = roleService.findByName("ROLE_USER")
-                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-            roles.add(userRole);
-        } else {
-            strRoles.forEach(role -> {
-                switch (role) {
-                    case "ROLE_ADMIN":
-                        RoleEntity adminRole = roleService.findByName("ROLE_ADMIN")
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                        roles.add(adminRole);
-                        break;
-                    default:
-                        RoleEntity userRole = roleService.findByName("ROLE_USER")
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                        roles.add(userRole);
-                }
-            });
-        }
-        user.setRoles(roles);
-        userService.save(user);
-        userService.addRoleToUser(signUpRequest.getUserName(),strRoles);
-        return ResponseEntity.ok(new MessageResponse("User register successfully!"));
-    }
-
-    @PostMapping("/login")
-    public ResponseEntity<ResponseObject> authenticateUser(@Validated @RequestBody LoginRequest loginRequest) {
-
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsernameOrEmail(), loginRequest.getPassword()));
-
-        String jwt = jwtUtils.generateJwtToken(authentication);
-        String reJwt = jwtUtils.generateRefreshJwtToken(authentication);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        User userDetails = (User) authentication.getPrincipal();
-        List<String> roles = userDetails.getAuthorities().stream()
-                .map(item -> item.getAuthority())
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok().body(new ResponseObject("ok",
-                "Login successfully",
-                new UserOutPut(jwt,
-                        reJwt,
-                        "Bearer",
-                        userDetails.getUsername(),
-                        roles)));
-
-    }
 
     @GetMapping("/users")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -161,7 +87,7 @@ public class UserController {
                 String username = decodedJWT.getSubject();
                 UserDTO user = userService.getUser(username);
                 String access_token = JWT.create()
-                        .withSubject(user.getUserName())
+                        .withSubject(user.getUsername())
                         .withExpiresAt(new Date(System.currentTimeMillis()+ jwtExpirationMs))
                         .withIssuer(request.getRequestURL().toString())
                         .withClaim("roles",user.getRoles().stream().map(RoleEntity::getName).collect(Collectors.toList()))

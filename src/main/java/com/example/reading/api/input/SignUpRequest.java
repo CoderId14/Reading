@@ -7,9 +7,10 @@ import java.util.Set;
 
 @Data
 public class SignUpRequest {
-    private String userName;
-    private String passWord;
+    private String username;
+    private String password;
     private String email;
+    private String fullName;
 
     private Set<String> roles;
 }

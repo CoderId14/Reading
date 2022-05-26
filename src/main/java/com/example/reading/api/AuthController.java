@@ -20,26 +20,24 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.management.relation.RoleNotFoundException;
+import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
-
-    private final AuthenticationManager authenticationManager;
-
-
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
 
 
     private final UserService userService;
@@ -61,7 +59,7 @@ public class AuthController {
     }
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Validated @RequestBody SignUpRequest signUpRequest) throws RoleNotFoundException {
-        if(userService.existsByUserName(signUpRequest.getUserName())){
+        if(userService.existsByUsername(signUpRequest.getUsername())){
             ResponseEntity.badRequest()
                     .body(new MessageResponse("Error: Username already exists"));
         }
@@ -69,8 +67,12 @@ public class AuthController {
             return ResponseEntity.badRequest()
                     .body(new MessageResponse("Error: Email already exists"));
         }
-        UserDTO user = new UserDTO(signUpRequest.getUserName(),signUpRequest.getPassWord(),
-                null,true,signUpRequest.getEmail(),null);
+        UserDTO user = new UserDTO(signUpRequest.getUsername(),
+                passwordEncoder.encode(signUpRequest.getPassword()),
+                signUpRequest.getFullName(),
+                true,
+                signUpRequest.getEmail(),
+                null);
         Set<String> strRoles = signUpRequest.getRoles();
         Set<RoleEntity> roles = new HashSet<>();
         if (strRoles == null) {
@@ -94,7 +96,11 @@ public class AuthController {
         }
         user.setRoles(roles);
         userService.save(user);
-        return ResponseEntity.ok(new MessageResponse("User register successfully!"));
+//        Chưa biết tại sao chỗ này phải cần addRoleToUser. user.setRoles(roles) không lưu vào database. Hiếu 26/5/2022 đã khóc
+        userService.addRoleToUser(user.getUsername(),strRoles);
+        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/user/{userId}")
+                .buildAndExpand(user.getId()).toUriString());
+        return ResponseEntity.created(uri).body(new MessageResponse("User register successfully!"));
     }
 
 }

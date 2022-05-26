@@ -14,13 +14,13 @@ import java.util.Set;
 
 public interface IUserService {
     UserDTO save(UserDTO userDTO);
-    UserDTO findByUserName(String userName);
+    UserDTO findByUsername(String username);
     RoleDTO saveRole(RoleDTO role);
-    void addRoleToUser(String userName,String roleName);
-    void addRoleToUser(String userName, Set<String> roleName);
+    void addRoleToUser(String username,String roleName);
+    void addRoleToUser(String username, Set<String> roleName);
     UserDTO getUser(String userName);
     List<UserDTO> getUsers();
-    boolean existsByUserName(String userName);
+    boolean existsByUsername(String username);
     boolean existsByEmail(String email);
     UserDTO registerUser(SignUpRequest signUpRequest);
 

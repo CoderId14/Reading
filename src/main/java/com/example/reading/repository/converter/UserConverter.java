@@ -13,8 +13,8 @@ import java.util.List;
 public class UserConverter {
     public UserEntity toEntity(UserDTO dto){
         UserEntity entity = new UserEntity();
-        entity.setUsername(dto.getUserName());
-        entity.setPassword(dto.getPassWord());
+        entity.setUsername(dto.getUsername());
+        entity.setPassword(dto.getPassword());
         entity.setFullName(dto.getFullName());
         entity.setStatus(dto.isStatus());
         return entity;
@@ -24,8 +24,8 @@ public class UserConverter {
         if(entity.getId() != 0){
             dto.setId(entity.getId());
         }
-        dto.setUserName(entity.getUsername());
-        dto.setPassWord(entity.getPassword());
+        dto.setUsername(entity.getUsername());
+        dto.setPassword(entity.getPassword());
         dto.setFullName(entity.getFullName());
         dto.setStatus(entity.isStatus());
         dto.setRoles(entity.getRoles());
@@ -36,8 +36,8 @@ public class UserConverter {
         return dto;
     }
     public UserEntity toEntity(UserDTO dto, UserEntity entity){
-        entity.setUsername(dto.getUserName());
-        entity.setPassword(dto.getPassWord());
+        entity.setUsername(dto.getUsername());
+        entity.setPassword(dto.getPassword());
         entity.setFullName(dto.getFullName());
         entity.setStatus(dto.isStatus());
         return entity;
