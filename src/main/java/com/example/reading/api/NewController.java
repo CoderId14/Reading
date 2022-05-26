@@ -1,45 +1,67 @@
 package com.example.reading.api;
 
 
-import com.example.reading.api.output.NewOutPut;
+import com.example.reading.api.output.PagedResponse;
 import com.example.reading.api.output.ResponseObject;
 import com.example.reading.dto.NewDTO;
 import com.example.reading.service.INewService;
+import com.example.reading.service.impl.NewService;
+import com.example.reading.utils.AppConstants;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 
 @CrossOrigin
-@RestController("/api")
+@RestController
+@RequestMapping("/api/new")
 public class NewController {
     @Autowired
-    private INewService newService;
+    private NewService newService;
 
 
-    @GetMapping("/new")
-    public ResponseEntity<ResponseObject> showNew(@RequestParam("page") int page,
-                                                  @RequestParam("limit") int limit
-                             ) {
-        Pageable pageable = PageRequest.of(page-1, limit);
-
-        NewOutPut result = new NewOutPut();
-        result.setPage(page);
-        result.setTotalPage((int) Math.ceil((double) (newService.totalItem()) / limit));
-        result.setListResult(newService.findAll(pageable));
+    @GetMapping
+    public ResponseEntity<ResponseObject> showNew(
+            @RequestParam(value = "page", required = false,defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) Integer page,
+            @RequestParam(value = "size", required = false,defaultValue = AppConstants.DEFAULT_PAGE_SIZE) Integer size
+    ) {
+        PagedResponse<NewDTO> response = newService.getAllNews(page, size);
+        return ResponseEntity.ok().body(new ResponseObject(
+                "ok",
+                "Query Book successfully",
+                response));
+    }
+    @GetMapping("/category/{id}")
+    public ResponseEntity<ResponseObject> getNewsByCategory(
+            @RequestParam(value = "page", required = false, defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) Integer page,
+            @RequestParam(value = "size", required = false, defaultValue = AppConstants.DEFAULT_PAGE_SIZE) Integer size,
+            @PathVariable(name = "id") Long id) {
+        PagedResponse<NewDTO> response = newService.getNewsByCategory(id, page, size);
 
         return ResponseEntity.ok().body(new ResponseObject(
                 "ok",
                 "Query Book successfully",
-                result));
+                response
+        ));
     }
+//    @GetMapping("/genres/{id}")
+//    public ResponseEntity<ResponseObject> getNewsByGenres(
+//            @RequestParam(value = "page", required = false, defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) Integer page,
+//            @RequestParam(value = "size", required = false, defaultValue = AppConstants.DEFAULT_PAGE_SIZE) Integer size,
+//            @PathVariable(name = "id") Long id) {
+//        PagedResponse<NewDTO> response = newService.getNewsByGenres(id, page, size);
+//
+//        return ResponseEntity.ok().body(new ResponseObject(
+//                "ok",
+//                "Query Book successfully",
+//                response
+//        ));
+//    }
 
-    @PostMapping("/new")
+    @PostMapping()
     public ResponseEntity<ResponseObject> saveNew(@RequestBody NewDTO model) {
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/new").toUriString());
         return ResponseEntity.created(uri).body(new ResponseObject(
@@ -48,7 +70,7 @@ public class NewController {
                 newService.save(model))) ;
     }
 
-    @PutMapping("/new/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<ResponseObject> updateNew(@RequestBody NewDTO model, @PathVariable("id") long id) {
         model.setId(id);
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/new/{id}").toUriString());
@@ -58,7 +80,7 @@ public class NewController {
                 newService.update(model))) ;
     }
 
-    @DeleteMapping("/new")
+    @DeleteMapping()
     public ResponseEntity<ResponseObject> deleteNew(@RequestBody long[] ids) {
         return ResponseEntity.ok().body(new ResponseObject(
                 "ok",
