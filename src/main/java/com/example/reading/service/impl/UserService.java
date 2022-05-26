@@ -4,6 +4,7 @@ import com.example.reading.api.input.SignUpRequest;
 import com.example.reading.api.output.MessageResponse;
 import com.example.reading.dto.RoleDTO;
 import com.example.reading.entity.RoleEntity;
+import com.example.reading.jwt.UserPrincipal;
 import com.example.reading.repository.RoleRepository;
 import com.example.reading.repository.converter.RoleConverter;
 import com.example.reading.repository.converter.UserConverter;
@@ -144,20 +145,12 @@ public class UserService implements IUserService,UserDetailsService {
 
 
     @Override
-    public UserDetails loadUserByUsername(String userName)
+    public UserDetails loadUserByUsername(String usernameOrEmail)
             throws UsernameNotFoundException {
-        Optional<UserEntity> user = userRepository.findByUserName(userName);
-        if (user.isPresent()){
-            log.info("User found in the database: {}",userName);
-        }
-        else{
-            log.error("User not found in the database");
-            throw new UsernameNotFoundException("User not found in the database");
+        UserEntity user = userRepository.findByUsernameOrEmail(usernameOrEmail,usernameOrEmail)
+                .orElseThrow(() -> new UsernameNotFoundException(
+                        String.format("User not found with this username or email: %s", usernameOrEmail)));;
 
-        }
-        Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        user.get().getRoles().forEach(role ->
-                authorities.add(new SimpleGrantedAuthority(role.getName())));
-        return new org.springframework.security.core.userdetails.User(user.get().getUserName(),user.get().getPassWord(),authorities);
+        return UserPrincipal.create(user);
     }
 }

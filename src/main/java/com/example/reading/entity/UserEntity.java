@@ -18,9 +18,9 @@ import java.util.Set;
 public class UserEntity extends BaseEntity {
 
     @Column
-    private String userName;
+    private String username;
     @Column
-    private String passWord;
+    private String password;
     @Column
     private String email;
     @Column(columnDefinition = "varchar(50) default 'Nguyen Van A'")

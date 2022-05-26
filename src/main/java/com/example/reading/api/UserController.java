@@ -103,7 +103,7 @@ public class UserController {
     public ResponseEntity<ResponseObject> authenticateUser(@Validated @RequestBody LoginRequest loginRequest) {
 
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUserName(), loginRequest.getPassWord()));
+                new UsernamePasswordAuthenticationToken(loginRequest.getUsernameOrEmail(), loginRequest.getPassword()));
 
         String jwt = jwtUtils.generateJwtToken(authentication);
         String reJwt = jwtUtils.generateRefreshJwtToken(authentication);
