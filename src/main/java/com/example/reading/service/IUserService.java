@@ -1,10 +1,12 @@
 package com.example.reading.service;
 
 import com.example.reading.api.input.SignUpRequest;
+import com.example.reading.api.output.UserSummary;
 import com.example.reading.dto.RoleDTO;
 import com.example.reading.dto.UserDTO;
 import com.example.reading.entity.RoleEntity;
 import com.example.reading.entity.UserEntity;
+import com.example.reading.jwt.UserPrincipal;
 import org.springframework.security.core.userdetails.User;
 
 import javax.management.relation.RoleNotFoundException;
@@ -23,6 +25,7 @@ public interface IUserService {
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
     UserDTO registerUser(SignUpRequest signUpRequest);
+    UserSummary getCurrentUser(UserPrincipal currentUser);
 
 
 }

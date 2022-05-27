@@ -1,6 +1,7 @@
 package com.example.reading.dto;
 
 import com.example.reading.entity.TagEntity;
+import com.example.reading.entity.UserEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
@@ -15,5 +16,6 @@ public class NewDTO extends AbstractDTO<NewDTO> {
     private String categoryCode;
     private List<TagEntity> tags = new ArrayList<>();
     private String thumbnail;
+    private UserEntity user;
 
 }

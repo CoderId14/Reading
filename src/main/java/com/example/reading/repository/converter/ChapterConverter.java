@@ -10,7 +10,9 @@ public class ChapterConverter {
         ChapterEntity entity = new ChapterEntity();
         entity.setDescription(dto.getDescription());
         entity.setContent(dto.getContent());
-
+        entity.setChildId(dto.getChildId());
+        entity.setParentId(dto.getParentId());
+        entity.setNews(dto.getNewId());
         return entity;
     }
     public ChapterDTO toDTO(ChapterEntity entity){
@@ -20,6 +22,9 @@ public class ChapterConverter {
         }
         dto.setDescription(entity.getDescription());
         dto.setContent(entity.getContent());
+        dto.setChildId(entity.getChildId());
+        dto.setParentId(entity.getParentId());
+        dto.setNewId(entity.getNews());
         dto.setCreatedDate(entity.getCreatedDate());
         dto.setCreatedBy(entity.getCreatedBy());
         dto.setModifiedBy(entity.getModifiedBy());

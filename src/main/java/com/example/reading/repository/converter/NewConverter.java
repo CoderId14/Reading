@@ -17,6 +17,7 @@ public class NewConverter {
         entity.setContent(dto.getContent());
         entity.setShortDescription(dto.getShortDescription());
         entity.setThumbnail(dto.getThumbnail());
+
         return entity;
     }
     public NewDTO toDTO(NewEntity entity){
@@ -41,6 +42,7 @@ public class NewConverter {
         entity.setContent(dto.getContent());
         entity.setShortDescription(dto.getShortDescription());
         entity.setThumbnail(dto.getThumbnail());
+        entity.setTags(dto.getTags());
         return entity;
     }
 }

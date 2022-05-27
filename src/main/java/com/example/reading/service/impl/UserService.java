@@ -1,6 +1,7 @@
 package com.example.reading.service.impl;
 
 import com.example.reading.api.input.SignUpRequest;
+import com.example.reading.api.output.UserSummary;
 import com.example.reading.dto.RoleDTO;
 import com.example.reading.dto.UserDTO;
 import com.example.reading.entity.RoleEntity;
@@ -37,7 +38,11 @@ public class UserService implements IUserService,UserDetailsService {
 
     private final static String  USER_NOT_FOUND_MSG =
             "user with email %s not found";
-
+    @Override
+    public UserSummary getCurrentUser(UserPrincipal currentUser) {
+        return new UserSummary(currentUser.getId(), currentUser.getUsername(), currentUser.getFullName()
+                );
+    }
     @Override
     public UserDTO save(UserDTO userDTO) {
         log.info("Saving new user {} to the database",userDTO.getUsername());

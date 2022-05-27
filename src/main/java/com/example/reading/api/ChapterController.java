@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @CrossOrigin
 @AllArgsConstructor
-@RequestMapping("/api/news/{newId}")
+@RequestMapping("/api/news/{newId}/chapter")
 public class ChapterController {
     private ChapterService chapterService;
 

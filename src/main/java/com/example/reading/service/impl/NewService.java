@@ -1,6 +1,7 @@
 package com.example.reading.service.impl;
 
 import com.example.reading.api.output.ApiResponse;
+import com.example.reading.api.output.NewUpdate;
 import com.example.reading.api.output.PagedResponse;
 import com.example.reading.entity.TagEntity;
 import com.example.reading.exception.ResourceNotFoundException;
@@ -26,10 +27,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import javax.swing.text.html.HTML;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static com.example.reading.utils.AppConstants.*;
 
@@ -68,18 +66,19 @@ public class NewService implements INewService {
     }
 
     @Override
-    public NewDTO update(NewDTO newDTO, UserPrincipal currentUser) {
-        NewEntity oldNewEntity = newRepository.findById(newDTO.getId()).orElse(null);
+    public NewDTO update(long id,NewUpdate newUpdate, UserPrincipal currentUser) {
 
-        NewEntity newEntity = newConverter.toEntity(newDTO,oldNewEntity);
+        Optional<CategoryEntity> categoryEntity = Optional.ofNullable(categoryRepository.findOneByCode(newUpdate.getCategoryCode()));
 
-        if(oldNewEntity.getUser().getUsername().equals(currentUser.getUsername())
+        NewEntity newEntity = newRepository.findById(id).orElse(null);
+
+        if(newEntity.getCreatedBy().equals(currentUser.getUsername())
         || currentUser.getAuthorities().contains(
                 new SimpleGrantedAuthority(roleRepository.findByName(ROLE_ADMIN).toString()))){
 
-        CategoryEntity categoryEntity = categoryRepository.findOneByCode(newDTO.getCategoryCode());
-
-        newEntity.setCategory(categoryEntity);
+        newEntity.setTitle(newUpdate.getTitle());
+        newEntity.setContent(newUpdate.getContent());
+        newEntity.setCategory(categoryEntity.get());
 
         newEntity = newRepository.save(newEntity);
 
@@ -100,7 +99,7 @@ public class NewService implements INewService {
             items.add(newRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(NEWS, ID, id)));
         });
 
-        if(items.get(0).getUser().getUsername().equals(currentUser.getUsername())
+        if(items.get(0).getCreatedBy().equals(currentUser.getUsername())
                 || currentUser.getAuthorities().contains(
                 new SimpleGrantedAuthority(roleRepository.findByName(ROLE_ADMIN).toString()))){
             for(long item: ids){
@@ -113,6 +112,9 @@ public class NewService implements INewService {
     @Override
     public PagedResponse<NewDTO> getAllNews(int page, int size) {
         AppUtils.validatePageNumberAndSize(page, size);
+
+//        CategoryEntity category = categoryRepository.findById(id)
+//                .orElseThrow(() -> new ResourceNotFoundException(CATEGORY, ID, id));
 
         Pageable pageable = PageRequest.of(page,size, Sort.Direction.DESC,CREATED_DATE);
 

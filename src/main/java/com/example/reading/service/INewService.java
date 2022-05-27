@@ -1,5 +1,6 @@
 package com.example.reading.service;
 
+import com.example.reading.api.output.NewUpdate;
 import com.example.reading.api.output.PagedResponse;
 import com.example.reading.dto.NewDTO;
 import com.example.reading.jwt.UserPrincipal;
@@ -7,7 +8,7 @@ import com.example.reading.jwt.UserPrincipal;
 public interface INewService {
     NewDTO save(NewDTO newDTO, UserPrincipal currentUser);
 
-    NewDTO update(NewDTO newDTO, UserPrincipal currentUser);
+    NewDTO update(long id,NewUpdate newUpdate, UserPrincipal currentUser);
 
     String delete(long[] ids,UserPrincipal currentUser);
 

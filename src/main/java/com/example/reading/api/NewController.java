@@ -1,6 +1,7 @@
 package com.example.reading.api;
 
 
+import com.example.reading.api.output.NewUpdate;
 import com.example.reading.api.output.PagedResponse;
 import com.example.reading.api.output.ResponseObject;
 import com.example.reading.dto.NewDTO;
@@ -8,6 +9,7 @@ import com.example.reading.jwt.CurrentUser;
 import com.example.reading.jwt.UserPrincipal;
 import com.example.reading.service.INewService;
 import com.example.reading.service.impl.NewService;
+import com.example.reading.service.impl.UserService;
 import com.example.reading.utils.AppConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,6 +26,8 @@ import java.net.URI;
 public class NewController {
     @Autowired
     private NewService newService;
+    @Autowired
+    private UserService userService;
 
 
     @GetMapping
@@ -76,19 +80,18 @@ public class NewController {
                 newService.save(model,currentUser))) ;
     }
 
-//    @PutMapping("/{id}")
-//    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
-//    public ResponseEntity<ResponseObject> updateNew(
-//            @RequestBody NewDTO model,
-//            @PathVariable("id") long id,
-//            @CurrentUser UserPrincipal currentUser) {
-//        model.setId(id);
-//        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/new/{id}").toUriString());
-//        return ResponseEntity.created(uri).body(new ResponseObject(
-//                "update",
-//                "Update new successfully id = "+id,
-//                newService.update(model,currentUser))) ;
-//    }
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    public ResponseEntity<ResponseObject> updateNew(
+            @RequestBody NewUpdate model,
+            @PathVariable("id") long id,
+            @CurrentUser UserPrincipal currentUser) {
+        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/new/{id}").toUriString());
+        return ResponseEntity.created(uri).body(new ResponseObject(
+                "update",
+                "Update new successfully id = "+id,
+                newService.update(id,model,currentUser))) ;
+    }
 
     @DeleteMapping()
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")

@@ -1,16 +1,21 @@
 package com.example.reading.entity;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Data
 @NoArgsConstructor
 @Table(name="chapter")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class ChapterEntity extends BaseEntity{
     @Column(columnDefinition = "TEXT")
     private String content;
@@ -19,11 +24,11 @@ public class ChapterEntity extends BaseEntity{
 
     @OneToOne
     @JoinColumn(name = "parent_id", referencedColumnName = "id")
-    private ChapterEntity parent_id;
+    private ChapterEntity parentId;
 
     @OneToOne
     @JoinColumn(name = "child_id", referencedColumnName = "id")
-    private ChapterEntity child_id;
+    private ChapterEntity childId;
 
     @ManyToOne
     @JoinColumn(name = "new_id")
