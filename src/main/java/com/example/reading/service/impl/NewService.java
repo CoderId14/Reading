@@ -1,9 +1,12 @@
 package com.example.reading.service.impl;
 
+import com.example.reading.api.output.ApiResponse;
 import com.example.reading.api.output.PagedResponse;
 import com.example.reading.entity.TagEntity;
 import com.example.reading.exception.ResourceNotFoundException;
+import com.example.reading.exception.UnauthorizedException;
 import com.example.reading.jwt.UserPrincipal;
+import com.example.reading.repository.RoleRepository;
 import com.example.reading.repository.TagRepository;
 import com.example.reading.repository.converter.TagConverter;
 import com.example.reading.repository.converter.NewConverter;
@@ -19,10 +22,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import javax.swing.text.html.HTML;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -40,6 +45,8 @@ public class NewService implements INewService {
     private TagRepository tagRepository;
     @Autowired
     private TagConverter tagConverter;
+    @Autowired
+    private RoleRepository roleRepository;
     
     @Override
     public NewDTO save(NewDTO newDTO, UserPrincipal currentUser) {
@@ -60,29 +67,45 @@ public class NewService implements INewService {
         return newConverter.toDTO(newEntity);
     }
 
-//    @Override
-//    public NewDTO update(NewDTO newDTO, UserPrincipal currentUser) {
-//        NewEntity oldNewEntity = newRepository.findById(newDTO.getId()).orElse(null);
-//
-//        NewEntity newEntity = newConverter.toEntity(newDTO,oldNewEntity);
-//        if(oldNewEntity..)
-//        CategoryEntity categoryEntity = categoryRepository.findOneByCode(newDTO.getCategoryCode());
-//
-//        newEntity.setCategory(categoryEntity);
-//
-//        newEntity = newRepository.save(newEntity);
-//
-//        return newConverter.toDTO(newEntity);
-//
-//        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission to edit this post");
-//
-//        throw new UnauthorizedException(apiResponse);
-//    }
+    @Override
+    public NewDTO update(NewDTO newDTO, UserPrincipal currentUser) {
+        NewEntity oldNewEntity = newRepository.findById(newDTO.getId()).orElse(null);
+
+        NewEntity newEntity = newConverter.toEntity(newDTO,oldNewEntity);
+
+        if(oldNewEntity.getUser().getUsername().equals(currentUser.getUsername())
+        || currentUser.getAuthorities().contains(
+                new SimpleGrantedAuthority(roleRepository.findByName(ROLE_ADMIN).toString()))){
+
+        CategoryEntity categoryEntity = categoryRepository.findOneByCode(newDTO.getCategoryCode());
+
+        newEntity.setCategory(categoryEntity);
+
+        newEntity = newRepository.save(newEntity);
+
+        return newConverter.toDTO(newEntity);
+        }
+        ApiResponse apiResponse = new ApiResponse(
+                Boolean.FALSE,
+                "You don't have permission to edit this news");
+
+        throw new UnauthorizedException(apiResponse);
+    }
 
     @Override
-    public String delete(long[] ids) {
-        for(long item: ids){
+    public String delete(long[] ids, UserPrincipal currentUser) {
+
+        List<NewEntity> items = new ArrayList<>();
+        Arrays.stream(ids).forEach(id ->{
+            items.add(newRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(NEWS, ID, id)));
+        });
+
+        if(items.get(0).getUser().getUsername().equals(currentUser.getUsername())
+                || currentUser.getAuthorities().contains(
+                new SimpleGrantedAuthority(roleRepository.findByName(ROLE_ADMIN).toString()))){
+            for(long item: ids){
             newRepository.deleteById(item);
+            }
         }
         return "Items has been deleted";
     }

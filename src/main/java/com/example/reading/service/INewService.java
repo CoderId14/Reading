@@ -7,9 +7,9 @@ import com.example.reading.jwt.UserPrincipal;
 public interface INewService {
     NewDTO save(NewDTO newDTO, UserPrincipal currentUser);
 
-//    NewDTO update(NewDTO newDTO, UserPrincipal currentUser);
+    NewDTO update(NewDTO newDTO, UserPrincipal currentUser);
 
-    String delete(long[] ids);
+    String delete(long[] ids,UserPrincipal currentUser);
 
     PagedResponse<NewDTO> getAllNews(int page, int size);
 

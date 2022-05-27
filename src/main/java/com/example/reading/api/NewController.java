@@ -98,7 +98,7 @@ public class NewController {
         return ResponseEntity.ok().body(new ResponseObject(
                 "ok",
                 "Delete new successfully id = "+ids,
-                newService.delete(ids))) ;
+                newService.delete(ids,currentUser))) ;
 
     }
 }

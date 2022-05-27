@@ -20,7 +20,7 @@ public class NewEntity extends BaseEntity{
     private  String shortDescription;
     @Column(columnDefinition = "TEXT")
     private String content;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private CategoryEntity category;
 
