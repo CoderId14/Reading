@@ -11,6 +11,10 @@ public class AppConstants {
 
 	public static final String ID = "id";
 
+	public static final String ROLE_USER = "ROLE_USER";
+
+	public static final String ROLE_ADMIN = "ROLE_ADMIN";
+
 	public static final String PHOTO = "Photo";
 
 	public static final String ALBUM = "Album";
@@ -23,9 +27,6 @@ public class AppConstants {
 
 	public static final String TAG = "Tag";
 
-	public static final String POST = "Post";
-
-	public static final String TODO = "ToDo";
 
 	public static final String YOU_DON_T_HAVE_PERMISSION_TO_MAKE_THIS_OPERATION = "You don't have permission to make this operation";
 }

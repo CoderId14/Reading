@@ -1,5 +1,6 @@
 package com.example.reading.entity;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,8 +10,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "role")
-@Getter
-@Setter
+@Data
 public class RoleEntity extends BaseEntity {
     @Column
     private String name;

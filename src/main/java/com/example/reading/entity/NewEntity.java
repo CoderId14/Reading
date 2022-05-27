@@ -1,5 +1,6 @@
 package com.example.reading.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -23,8 +24,8 @@ public class NewEntity extends BaseEntity{
     @JoinColumn(name = "category_id")
     private CategoryEntity category;
 
-    @ManyToMany(mappedBy = "news")
-    List<UserEntity> users = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    private UserEntity user;
 
     @ManyToMany
     @JoinTable(name = "tag_new",
@@ -32,7 +33,11 @@ public class NewEntity extends BaseEntity{
             inverseJoinColumns = @JoinColumn(name = "new_id"))
     private List<TagEntity> tags = new ArrayList<>();
 
-
-    @OneToMany(mappedBy = "news")
+    @JsonIgnore
+    @OneToMany(mappedBy = "news", cascade = CascadeType.ALL)
     private List<ChapterEntity> chapters = new ArrayList<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "news", cascade = CascadeType.ALL)
+    private List<CommentNewsEntity> commentNews;
 }

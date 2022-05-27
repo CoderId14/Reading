@@ -4,12 +4,15 @@ package com.example.reading.api;
 import com.example.reading.api.output.PagedResponse;
 import com.example.reading.api.output.ResponseObject;
 import com.example.reading.dto.NewDTO;
+import com.example.reading.jwt.CurrentUser;
+import com.example.reading.jwt.UserPrincipal;
 import com.example.reading.service.INewService;
 import com.example.reading.service.impl.NewService;
 import com.example.reading.utils.AppConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -62,26 +65,36 @@ public class NewController {
     }
 
     @PostMapping()
-    public ResponseEntity<ResponseObject> saveNew(@RequestBody NewDTO model) {
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    public ResponseEntity<ResponseObject> saveNew(
+            @RequestBody NewDTO model,
+            @CurrentUser UserPrincipal currentUser) {
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/new").toUriString());
         return ResponseEntity.created(uri).body(new ResponseObject(
                 "created",
                 "Save new successfully",
-                newService.save(model))) ;
+                newService.save(model,currentUser))) ;
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ResponseObject> updateNew(@RequestBody NewDTO model, @PathVariable("id") long id) {
-        model.setId(id);
-        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/new/{id}").toUriString());
-        return ResponseEntity.created(uri).body(new ResponseObject(
-                "update",
-                "Update new successfully id = "+id,
-                newService.update(model))) ;
-    }
+//    @PutMapping("/{id}")
+//    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+//    public ResponseEntity<ResponseObject> updateNew(
+//            @RequestBody NewDTO model,
+//            @PathVariable("id") long id,
+//            @CurrentUser UserPrincipal currentUser) {
+//        model.setId(id);
+//        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/new/{id}").toUriString());
+//        return ResponseEntity.created(uri).body(new ResponseObject(
+//                "update",
+//                "Update new successfully id = "+id,
+//                newService.update(model,currentUser))) ;
+//    }
 
     @DeleteMapping()
-    public ResponseEntity<ResponseObject> deleteNew(@RequestBody long[] ids) {
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    public ResponseEntity<ResponseObject> deleteNew(
+            @RequestBody long[] ids,
+            @CurrentUser UserPrincipal currentUser) {
         return ResponseEntity.ok().body(new ResponseObject(
                 "ok",
                 "Delete new successfully id = "+ids,

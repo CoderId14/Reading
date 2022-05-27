@@ -3,6 +3,7 @@ package com.example.reading.service.impl;
 import com.example.reading.api.output.PagedResponse;
 import com.example.reading.entity.TagEntity;
 import com.example.reading.exception.ResourceNotFoundException;
+import com.example.reading.jwt.UserPrincipal;
 import com.example.reading.repository.TagRepository;
 import com.example.reading.repository.converter.TagConverter;
 import com.example.reading.repository.converter.NewConverter;
@@ -41,7 +42,7 @@ public class NewService implements INewService {
     private TagConverter tagConverter;
     
     @Override
-    public NewDTO save(NewDTO newDTO) {
+    public NewDTO save(NewDTO newDTO, UserPrincipal currentUser) {
         CategoryEntity categoryEntity = categoryRepository.findOneByCode(newDTO.getCategoryCode());
         List<String> titles = new ArrayList<>();
         newDTO.getTags().forEach(tag ->{
@@ -59,15 +60,24 @@ public class NewService implements INewService {
         return newConverter.toDTO(newEntity);
     }
 
-    @Override
-    public NewDTO update(NewDTO newDTO) {
-        NewEntity oldNewEntity = newRepository.findById(newDTO.getId()).orElse(null);
-        NewEntity newEntity = newConverter.toEntity(newDTO,oldNewEntity);
-        CategoryEntity categoryEntity = categoryRepository.findOneByCode(newDTO.getCategoryCode());
-        newEntity.setCategory(categoryEntity);
-        newEntity = newRepository.save(newEntity);
-        return newConverter.toDTO(newEntity);
-    }
+//    @Override
+//    public NewDTO update(NewDTO newDTO, UserPrincipal currentUser) {
+//        NewEntity oldNewEntity = newRepository.findById(newDTO.getId()).orElse(null);
+//
+//        NewEntity newEntity = newConverter.toEntity(newDTO,oldNewEntity);
+//        if(oldNewEntity..)
+//        CategoryEntity categoryEntity = categoryRepository.findOneByCode(newDTO.getCategoryCode());
+//
+//        newEntity.setCategory(categoryEntity);
+//
+//        newEntity = newRepository.save(newEntity);
+//
+//        return newConverter.toDTO(newEntity);
+//
+//        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission to edit this post");
+//
+//        throw new UnauthorizedException(apiResponse);
+//    }
 
     @Override
     public String delete(long[] ids) {
