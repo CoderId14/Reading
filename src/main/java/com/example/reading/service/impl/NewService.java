@@ -18,6 +18,7 @@ import com.example.reading.repository.CategoryRepository;
 import com.example.reading.repository.NewRepository;
 import com.example.reading.service.INewService;
 import com.example.reading.utils.AppUtils;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -92,21 +93,20 @@ public class NewService implements INewService {
     }
 
     @Override
-    public String delete(long[] ids, UserPrincipal currentUser) {
-
-        List<NewEntity> items = new ArrayList<>();
-        Arrays.stream(ids).forEach(id ->{
-            items.add(newRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(NEWS, ID, id)));
-        });
-
-        if(items.get(0).getCreatedBy().equals(currentUser.getUsername())
+    public ApiResponse delete(long id, UserPrincipal currentUser) {
+        NewEntity newEntity = newRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(NEWS, ID, id));
+        if(newEntity.getCreatedBy().equals(currentUser.getUsername())
                 || currentUser.getAuthorities().contains(
                 new SimpleGrantedAuthority(roleRepository.findByName(ROLE_ADMIN).toString()))){
-            for(long item: ids){
-            newRepository.deleteById(item);
-            }
+
+            newRepository.deleteById(id);
+
+            return new ApiResponse(Boolean.TRUE, "You successfully deleted post");
+
         }
-        return "Items has been deleted";
+        ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission to delete this post");
+
+        throw new UnauthorizedException(apiResponse);
     }
 
     @Override

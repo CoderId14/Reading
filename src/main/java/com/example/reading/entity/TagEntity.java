@@ -18,7 +18,11 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name="tags")
+@Table(name="tags",
+        uniqueConstraints = {
+        @UniqueConstraint(columnNames = "title")
+}
+)
 //@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class TagEntity extends BaseEntity{
 

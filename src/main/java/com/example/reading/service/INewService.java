@@ -1,5 +1,6 @@
 package com.example.reading.service;
 
+import com.example.reading.api.output.ApiResponse;
 import com.example.reading.api.output.NewUpdate;
 import com.example.reading.api.output.PagedResponse;
 import com.example.reading.dto.NewDTO;
@@ -10,7 +11,7 @@ public interface INewService {
 
     NewDTO update(long id,NewUpdate newUpdate, UserPrincipal currentUser);
 
-    String delete(long[] ids,UserPrincipal currentUser);
+    ApiResponse delete(long id, UserPrincipal currentUser);
 
     PagedResponse<NewDTO> getAllNews(int page, int size);
 

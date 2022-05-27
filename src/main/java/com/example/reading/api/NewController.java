@@ -1,6 +1,7 @@
 package com.example.reading.api;
 
 
+import com.example.reading.api.output.ApiResponse;
 import com.example.reading.api.output.NewUpdate;
 import com.example.reading.api.output.PagedResponse;
 import com.example.reading.api.output.ResponseObject;
@@ -93,15 +94,13 @@ public class NewController {
                 newService.update(id,model,currentUser))) ;
     }
 
-    @DeleteMapping()
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
-    public ResponseEntity<ResponseObject> deleteNew(
-            @RequestBody long[] ids,
+    public ResponseEntity<ApiResponse> deleteNew(
+            @PathVariable(name = "id") long id,
             @CurrentUser UserPrincipal currentUser) {
-        return ResponseEntity.ok().body(new ResponseObject(
-                "ok",
-                "Delete new successfully id = "+ids,
-                newService.delete(ids,currentUser))) ;
+        ApiResponse apiResponse = newService.delete(id,currentUser);
+        return ResponseEntity.ok().body(apiResponse);
 
     }
 }
