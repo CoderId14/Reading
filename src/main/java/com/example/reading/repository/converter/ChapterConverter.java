@@ -18,8 +18,8 @@ public class ChapterConverter {
         if(entity.getId() != 0){
             dto.setId(entity.getId());
         }
-        entity.setDescription(dto.getDescription());
-        entity.setContent(dto.getContent());
+        dto.setDescription(entity.getDescription());
+        dto.setContent(entity.getContent());
         dto.setCreatedDate(entity.getCreatedDate());
         dto.setCreatedBy(entity.getCreatedBy());
         dto.setModifiedBy(entity.getModifiedBy());

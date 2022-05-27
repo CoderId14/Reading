@@ -5,6 +5,8 @@ public class AppConstants {
 
 	public static final String DEFAULT_PAGE_SIZE = "30";
 
+	public static final String DEFAULT_CHAPTER = "1";
+
 	public static final int MAX_PAGE_SIZE = 30;
 
 	public static final String CREATED_DATE = "createdDate";
@@ -20,6 +22,8 @@ public class AppConstants {
 	public static final String ALBUM = "Album";
 
 	public static final String USERNAME = "username";
+
+	public static final String CHAPTER = "Chapter";
 
 	public static final String USER = "User";
 

@@ -29,9 +29,9 @@ public class ChapterEntity extends BaseEntity{
     @JoinColumn(name = "new_id")
     private NewEntity news;
 
-//    @JsonIgnore
-//    @OneToMany(fetch = FetchType.LAZY)
-//    private List<CommentChapterEntity> commentChapter;
+    @JsonIgnore
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<CommentChapterEntity> commentChapter;
 
 
 }
