@@ -97,7 +97,7 @@ public class AuthController {
         user.setRoles(roles);
         userService.save(user);
 //        Chưa biết tại sao chỗ này phải cần addRoleToUser. user.setRoles(roles) không lưu vào database. Hiếu 26/5/2022 đã khóc
-        userService.addRoleToUser(user.getUsername(),strRoles);
+//        userService.addRoleToUser(user.getUsername(),strRoles);
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/user/{userId}")
                 .buildAndExpand(user.getId()).toUriString());
         return ResponseEntity.created(uri).body(new MessageResponse("User register successfully!"));

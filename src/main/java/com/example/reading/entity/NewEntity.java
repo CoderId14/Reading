@@ -27,10 +27,10 @@ public class NewEntity extends BaseEntity{
     List<UserEntity> users = new ArrayList<>();
 
     @ManyToMany
-    @JoinTable(name = "genre_new",
-            joinColumns = @JoinColumn(name = "genre_id"),
+    @JoinTable(name = "tag_new",
+            joinColumns = @JoinColumn(name = "tag_id"),
             inverseJoinColumns = @JoinColumn(name = "new_id"))
-    private List<GenreEntity> genres = new ArrayList<>();
+    private List<TagEntity> tags = new ArrayList<>();
 
 
     @OneToMany(mappedBy = "news")

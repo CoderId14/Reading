@@ -47,19 +47,19 @@ public class NewController {
                 response
         ));
     }
-//    @GetMapping("/genres/{id}")
-//    public ResponseEntity<ResponseObject> getNewsByGenres(
-//            @RequestParam(value = "page", required = false, defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) Integer page,
-//            @RequestParam(value = "size", required = false, defaultValue = AppConstants.DEFAULT_PAGE_SIZE) Integer size,
-//            @PathVariable(name = "id") Long id) {
-//        PagedResponse<NewDTO> response = newService.getNewsByGenres(id, page, size);
-//
-//        return ResponseEntity.ok().body(new ResponseObject(
-//                "ok",
-//                "Query Book successfully",
-//                response
-//        ));
-//    }
+    @GetMapping("/tags/{id}")
+    public ResponseEntity<ResponseObject> getNewsByTags(
+            @RequestParam(value = "page", required = false, defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) Integer page,
+            @RequestParam(value = "size", required = false, defaultValue = AppConstants.DEFAULT_PAGE_SIZE) Integer size,
+            @PathVariable(name = "id") Long id) {
+        PagedResponse<NewDTO> response = newService.getNewsByTags(id, page, size);
+
+        return ResponseEntity.ok().body(new ResponseObject(
+                "ok",
+                "Query Book successfully",
+                response
+        ));
+    }
 
     @PostMapping()
     public ResponseEntity<ResponseObject> saveNew(@RequestBody NewDTO model) {

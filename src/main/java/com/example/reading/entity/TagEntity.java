@@ -1,6 +1,7 @@
 package com.example.reading.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,14 +14,17 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name="genre")
-public class GenreEntity extends BaseEntity{
+@Table(name="tags")
+public class TagEntity extends BaseEntity{
 
     @Column
     private String title;
     @Column
     private String content;
 
-    @ManyToMany(mappedBy = "genres")
+    //thêm JsonIgnore vì This is an issue with bidirectional relationships,
+    // as they hold references to each other, at deserialization, Jackson runs in an infinite loop
+    @JsonIgnore
+    @ManyToMany(mappedBy = "tags")
     private List<NewEntity> news = new ArrayList<>();
 }

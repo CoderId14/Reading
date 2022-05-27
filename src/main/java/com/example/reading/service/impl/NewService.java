@@ -1,11 +1,10 @@
 package com.example.reading.service.impl;
 
-import com.example.reading.api.output.MessageResponse;
 import com.example.reading.api.output.PagedResponse;
-import com.example.reading.entity.GenreEntity;
+import com.example.reading.entity.TagEntity;
 import com.example.reading.exception.ResourceNotFoundException;
-import com.example.reading.repository.GenreRepository;
-import com.example.reading.repository.converter.GenreConverter;
+import com.example.reading.repository.TagRepository;
+import com.example.reading.repository.converter.TagConverter;
 import com.example.reading.repository.converter.NewConverter;
 import com.example.reading.dto.NewDTO;
 import com.example.reading.entity.CategoryEntity;
@@ -21,8 +20,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.HTML;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -37,14 +36,24 @@ public class NewService implements INewService {
     @Autowired
     private NewConverter newConverter;
     @Autowired
-    private GenreRepository genreRepository;
+    private TagRepository tagRepository;
     @Autowired
-    private GenreConverter genreConverter;
+    private TagConverter tagConverter;
     
     @Override
     public NewDTO save(NewDTO newDTO) {
         CategoryEntity categoryEntity = categoryRepository.findOneByCode(newDTO.getCategoryCode());
+        List<String> titles = new ArrayList<>();
+        newDTO.getTags().forEach(tag ->{
+            titles.add(tag.getTitle());
+        });
+        List<TagEntity> tagEntities = new ArrayList<>();
+        titles.forEach(title ->{
+            tagEntities.add(tagRepository.findByTitle(title));
+        });
+
         NewEntity newEntity = newConverter.toEntity(newDTO);
+        newEntity.setTags(tagEntities);
         newEntity.setCategory(categoryEntity);
         newEntity = newRepository.save(newEntity);
         return newConverter.toDTO(newEntity);
@@ -115,26 +124,26 @@ public class NewService implements INewService {
                 news.getTotalPages(), news.isLast());
     }
 
-//    @Override
-//    public PagedResponse<NewDTO> getNewsByGenres(Long id, int page, int size) {
-//        AppUtils.validatePageNumberAndSize(page, size);
-//
-//        GenreEntity genre = genreRepository.findById(id).
-//                orElseThrow(() -> new ResourceNotFoundException(TAG, ID, id));
-//
-//        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, CREATED_DATE);
-//
-//        Page<NewEntity> news = newRepository.findByGenre(Collections.singletonList(genre), pageable);
-//
-//        List<NewEntity> contents = news.getNumberOfElements() == 0 ? Collections.emptyList() : news.getContent();
-//
-//        List<NewDTO> result = new ArrayList<>();
-//        contents.forEach(temp ->{
-//            result.add(newConverter.toDTO(temp));
-//        });
-//        return new PagedResponse<>(result,news.getNumber(), news.getSize(), news.getTotalElements(),
-//                news.getTotalPages(), news.isLast());
-//    }
-//
+    @Override
+    public PagedResponse<NewDTO> getNewsByTags(Long id, int page, int size) {
+        AppUtils.validatePageNumberAndSize(page, size);
+
+        TagEntity tag = tagRepository.findById(id).
+                orElseThrow(() -> new ResourceNotFoundException(TAG, ID, id));
+
+        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, CREATED_DATE);
+
+        Page<NewEntity> news = newRepository.findByTagsIn(Collections.singletonList(tag), pageable);
+
+        List<NewEntity> contents = news.getNumberOfElements() == 0 ? Collections.emptyList() : news.getContent();
+
+        List<NewDTO> result = new ArrayList<>();
+        contents.forEach(temp ->{
+            result.add(newConverter.toDTO(temp));
+        });
+        return new PagedResponse<>(result,news.getNumber(), news.getSize(), news.getTotalElements(),
+                news.getTotalPages(), news.isLast());
+    }
+
 
 }

@@ -1,8 +1,13 @@
 package com.example.reading.repository.converter;
 
 import com.example.reading.dto.NewDTO;
+import com.example.reading.dto.TagDTO;
 import com.example.reading.entity.NewEntity;
+import com.example.reading.entity.TagEntity;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class NewConverter {
@@ -23,6 +28,8 @@ public class NewConverter {
         dto.setContent(entity.getContent());
         dto.setShortDescription(entity.getShortDescription());
         dto.setThumbnail(entity.getThumbnail());
+        dto.setTags(entity.getTags());
+        dto.setCategoryCode(entity.getCategory().getCode());
         dto.setCreatedDate(entity.getCreatedDate());
         dto.setCreatedBy(entity.getCreatedBy());
         dto.setModifiedBy(entity.getModifiedBy());

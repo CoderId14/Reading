@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class GenreDTO extends AbstractDTO{
+public class TagDTO extends AbstractDTO{
 
     private String title;
     private String content;

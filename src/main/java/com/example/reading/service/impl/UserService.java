@@ -42,6 +42,7 @@ public class UserService implements IUserService,UserDetailsService {
     public UserDTO save(UserDTO userDTO) {
         log.info("Saving new user {} to the database",userDTO.getUsername());
         UserEntity userEntity = userConverter.toEntity(userDTO);
+        userEntity.setRoles(userDTO.getRoles());
         userRepository.save(userEntity);
         return userConverter.toDTO(userEntity);
     }
