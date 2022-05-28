@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface IChapterService {
 
-    List<ChapterDTO> getChapter(Long id);
+    List<ChapterDTO> getChapter(Long newId, Long id);
 
     PagedResponse<ChapterDTO> getAllChapter(Long id, int page, int size );
 

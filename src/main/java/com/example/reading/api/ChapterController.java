@@ -39,10 +39,12 @@ public class ChapterController {
         return new ResponseEntity< >(allChapter, HttpStatus.OK);
     }
     @GetMapping("/{id}")
-    public ResponseEntity<ResponseObject> getChapter(@RequestParam(name = "id") Long id
+    public ResponseEntity<ResponseObject> getChapter(
+            @PathVariable(name = "newId") Long newId,
+            @PathVariable(name = "id") Long id
 
                                                         ) {
-        List<ChapterDTO> result = chapterService.getChapter(id);
+        List<ChapterDTO> result = chapterService.getChapter(newId,id);
 
         return ResponseEntity.ok().body(new ResponseObject(
                 "ok",

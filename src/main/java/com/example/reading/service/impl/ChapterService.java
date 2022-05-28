@@ -8,6 +8,7 @@ import com.example.reading.dto.NewDTO;
 import com.example.reading.entity.ChapterEntity;
 import com.example.reading.entity.NewEntity;
 import com.example.reading.exception.ResourceNotFoundException;
+import com.example.reading.exception.WebapiException;
 import com.example.reading.jwt.UserPrincipal;
 import com.example.reading.repository.ChapterRepository;
 import com.example.reading.repository.NewRepository;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
@@ -42,23 +44,54 @@ public class ChapterService implements IChapterService {
 
     private final RoleRepository roleRepository;
 
+    private final String CHAPTER_DONT_BELONG_TO_NEWS ="Chapter dont belong to news";
 
 
 
     @Override
-    public List<ChapterDTO> getChapter(Long id) {
+//    Thứ tự data: chap hiện tại -> chap trước -> chap sau
+    public List<ChapterDTO> getChapter(Long newId, Long id) {
         ChapterEntity chapterEntity = chapterRepository.findById(id).
                 orElseThrow(() -> new ResourceNotFoundException(CHAPTER, ID, id));
-        Optional<ChapterEntity> prevChapter = chapterRepository.findChapterEntityByIdAndParentId(id,chapterEntity.getParent().getId());
-        Optional<ChapterEntity> childChapter = chapterRepository.findChapterEntityByIdAndChildId(id, chapterEntity.getChild().getId());
-        ChapterDTO responsePrev = chapterConverter.toDTO(Optional.ofNullable(prevChapter.get()).get());
-        ChapterDTO responseChild = chapterConverter.toDTO(Optional.ofNullable(childChapter.get()).get());
-        ChapterDTO responseChap = chapterConverter.toDTO(chapterEntity);
-        List<ChapterDTO> listChap = new ArrayList<>();
-        listChap.add(responseChap);
-        listChap.add(responsePrev);
-        listChap.add(responseChild);
-        return listChap;
+        NewEntity newEntity = newRepository.findById(newId).
+                orElseThrow(() -> new ResourceNotFoundException(NEWS, ID, id));
+
+        if(chapterEntity.getNews().getId() == newEntity.getId()){
+            Optional<ChapterEntity> tempParentChapter = Optional.ofNullable(chapterEntity.getParent());
+
+            Optional<ChapterEntity> tempChildChapter = Optional.ofNullable(chapterEntity.getChild());
+            ChapterDTO responseChap = chapterConverter.toDTO(chapterEntity);
+
+            List<ChapterDTO> listChap = new ArrayList<>();
+
+            listChap.add(responseChap);
+            if(tempParentChapter.isPresent()){
+
+                Long parentId = tempParentChapter.get().getId();
+
+                if (parentId != null){
+                    Optional<ChapterEntity> prevChapter = chapterRepository.findById(parentId);
+                    ChapterDTO responsePrev = chapterConverter.toDTO(Optional.ofNullable(prevChapter.get()).get());
+
+                    listChap.add(responsePrev);
+                }
+            }
+            if(tempChildChapter.isPresent()){
+                Long childId = tempChildChapter.get().getId();
+
+                if(childId != null){
+                    Optional<ChapterEntity> childChapter = chapterRepository.findById(chapterEntity.getChild().getId());
+                    ChapterDTO responseChild = chapterConverter.toDTO(Optional.ofNullable(childChapter.get()).get());
+                    listChap.add(responseChild);
+                }
+            }
+
+            return listChap;
+        }
+        else{
+            throw new WebapiException(HttpStatus.BAD_REQUEST, CHAPTER_DONT_BELONG_TO_NEWS);
+        }
+
 
     }
 
