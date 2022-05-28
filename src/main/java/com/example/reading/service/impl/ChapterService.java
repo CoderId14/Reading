@@ -1,6 +1,7 @@
 package com.example.reading.service.impl;
 
 import com.example.reading.api.ChapterController;
+import com.example.reading.api.output.ApiResponse;
 import com.example.reading.api.output.PagedResponse;
 import com.example.reading.api.output.ResponseObject;
 import com.example.reading.dto.ChapterDTO;
@@ -8,6 +9,7 @@ import com.example.reading.dto.NewDTO;
 import com.example.reading.entity.ChapterEntity;
 import com.example.reading.entity.NewEntity;
 import com.example.reading.exception.ResourceNotFoundException;
+import com.example.reading.exception.UnauthorizedException;
 import com.example.reading.exception.WebapiException;
 import com.example.reading.jwt.UserPrincipal;
 import com.example.reading.repository.ChapterRepository;
@@ -175,5 +177,56 @@ public class ChapterService implements IChapterService {
             throw  new ResourceNotFoundException("New, prevChapter, childChapter", "", chapterRequest.getNewId());
         }
         return null;
+    }
+
+    @Override
+    public ApiResponse deleteChapter(Long newId, Long id, UserPrincipal currentUser) {
+        NewEntity newEntity = newRepository.findById(newId).
+                orElseThrow(() -> new ResourceNotFoundException(NEWS, ID, id));
+
+        if(newEntity.getCreatedBy().equals(currentUser.getUsername()) || currentUser.getAuthorities().contains(
+                new SimpleGrantedAuthority(roleRepository.findByName(ROLE_ADMIN).toString()))){
+            ChapterEntity chapterEntity = chapterRepository.findById(id).
+                    orElseThrow(() -> new ResourceNotFoundException(CHAPTER, ID, id));
+
+            Optional<ChapterEntity> prevChapter = Optional.ofNullable(chapterEntity.getParent());
+            Optional<ChapterEntity> childChapter = Optional.ofNullable(chapterEntity.getChild());
+
+//            Check vị trí của chapter trong linked list
+            if(prevChapter.isPresent() || childChapter.isPresent()){
+
+//                Nếu chapter nằm giữa
+                if(childChapter.isPresent() && prevChapter.isPresent()){
+                    chapterEntity.setParent(null);
+                    chapterEntity.setChild(null);
+                    prevChapter.get().setChild(childChapter.get());
+                    childChapter.get().setParent(prevChapter.get());
+                }
+//                Chapter nằm ở đầu hoặc cuối
+                else {
+//                    Chapter nằm cuối
+                    if(prevChapter.isPresent()){
+                        chapterEntity.setParent(null);
+                        prevChapter.get().setChild(null);
+                    }
+//                    Chapter nằm đầu
+                    else{
+                        chapterEntity.setChild(null);
+                        childChapter.get().setParent(null);
+                    }
+
+                }
+            }
+
+            chapterRepository.delete(chapterEntity);
+
+            return new ApiResponse(Boolean.TRUE, "You successfully deleted chapter");
+
+        }
+        ApiResponse apiResponse = new ApiResponse(
+                Boolean.FALSE,
+                "You don't have permission to delete this chapter");
+
+        throw new UnauthorizedException(apiResponse);
     }
 }

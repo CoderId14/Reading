@@ -71,7 +71,7 @@ public class NewService implements INewService {
 
         Optional<CategoryEntity> categoryEntity = Optional.ofNullable(categoryRepository.findOneByCode(newUpdate.getCategoryCode()));
 
-        NewEntity newEntity = newRepository.findById(id).orElse(null);
+        NewEntity newEntity = newRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(NEWS, ID, id));
 
         if(newEntity.getCreatedBy().equals(currentUser.getUsername())
         || currentUser.getAuthorities().contains(
