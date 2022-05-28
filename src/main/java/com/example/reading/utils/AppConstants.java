@@ -19,7 +19,6 @@ public class AppConstants {
 
 	public static final String PHOTO = "Photo";
 
-	public static final String ALBUM = "Album";
 
 	public static final String USERNAME = "username";
 

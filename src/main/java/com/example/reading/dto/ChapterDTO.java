@@ -14,11 +14,11 @@ public class ChapterDTO extends AbstractDTO<ChapterDTO>{
 
     private String description;
 
-    private ChapterEntity childId;
+    private Long childId;
 
-    private ChapterEntity parentId;
+    private Long parentId;
 
-    private NewEntity newId;
+    private Long newId;
 
 
 }

@@ -5,7 +5,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
+
 public interface ChapterRepository extends JpaRepository<ChapterEntity,Long> {
 
-    Page<ChapterEntity> findById(Long id, Pageable pageable);
+    Page<ChapterEntity> findByNewsId(Long id, Pageable pageable);
+
+    Optional<ChapterEntity> findChapterEntityByIdAndChildId(Long id, Long childId);
+
+    Optional<ChapterEntity> findChapterEntityByIdAndParentId(Long id, Long parentId);
 }

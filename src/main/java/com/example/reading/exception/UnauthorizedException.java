@@ -2,9 +2,11 @@ package com.example.reading.exception;
 
 
 import com.example.reading.api.output.ApiResponse;
+import lombok.Data;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+@Data
 @ResponseStatus(code = HttpStatus.UNAUTHORIZED)
 public class UnauthorizedException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
@@ -27,20 +29,6 @@ public class UnauthorizedException extends RuntimeException {
 		super(message, cause);
 	}
 
-	public ApiResponse getApiResponse() {
-		return apiResponse;
-	}
 
-	public void setApiResponse(ApiResponse apiResponse) {
-		this.apiResponse = apiResponse;
-	}
-
-	public String getMessage() {
-		return message;
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
-	}
 
 }

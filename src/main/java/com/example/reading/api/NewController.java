@@ -23,7 +23,7 @@ import java.net.URI;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/api/new")
+@RequestMapping("/api/news")
 public class NewController {
     @Autowired
     private NewService newService;

@@ -24,11 +24,11 @@ public class ChapterEntity extends BaseEntity{
 
     @OneToOne
     @JoinColumn(name = "parent_id", referencedColumnName = "id")
-    private ChapterEntity parentId;
+    private ChapterEntity parent;
 
     @OneToOne
     @JoinColumn(name = "child_id", referencedColumnName = "id")
-    private ChapterEntity childId;
+    private ChapterEntity child;
 
     @ManyToOne
     @JoinColumn(name = "new_id")
