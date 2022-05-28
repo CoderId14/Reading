@@ -118,6 +118,7 @@ public class ChapterService implements IChapterService {
 
     @Override
 //    Cấu trúc các chapter dạng linked list: Mỗi chapter liên kết với prevChapter(chapter trước) và childChapter(chapter sau)
+//    Không nên nhận thêm giá trị childId vì khá khó quản lý(VD parentId =2 childId =5 thì nó chapter 3->4 cũ bị cô lập không truy xuất được)
     public ChapterDTO addChapter(ChapterDTO chapterRequest, UserPrincipal currentUser) {
         if(newRepository.existsById(chapterRequest.getNewId())
                 ){
@@ -130,13 +131,15 @@ public class ChapterService implements IChapterService {
                 ChapterEntity chapterEntity = chapterConverter.toEntity(chapterRequest);
 
                 chapterEntity.setNews(newRepository.findById(chapterRequest.getNewId()).get());
-
+//                Phải kiểm tra null trước vì method findById không nhận id null
                 Long parentId = chapterRequest.getParentId();
 
                 Long childId = chapterRequest.getChildId();
 
+//                Sau khi check id != null sẽ gán ngược lại
                 ChapterEntity tempPrevChapter =null;
                 ChapterEntity tempChildChapter =null;
+
                 if(parentId != null){
                     Optional<ChapterEntity> prevChapter =chapterRepository.findById(
                             parentId);
@@ -157,6 +160,7 @@ public class ChapterService implements IChapterService {
                     }
                 }
 
+//              Set liên kết của parent và child với chapter thêm vào
                 if(tempPrevChapter != null)
                     tempPrevChapter.setChild(chapterEntity);
 
@@ -174,7 +178,7 @@ public class ChapterService implements IChapterService {
 
         }
         else {
-            throw  new ResourceNotFoundException("New, prevChapter, childChapter", "", chapterRequest.getNewId());
+            throw  new ResourceNotFoundException("News", "Id not found", chapterRequest.getNewId());
         }
         return null;
     }
