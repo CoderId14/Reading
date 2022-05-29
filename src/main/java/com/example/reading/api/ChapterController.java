@@ -78,5 +78,19 @@ public class ChapterController {
 
     }
 
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    public ResponseEntity<ChapterDTO> updateChapter(
+            @PathVariable(name = "newId") Long newId,
+            @PathVariable(name = "id") Long id,
+            @Validated @RequestBody ChapterDTO chapterRequest,
+            @CurrentUser UserPrincipal currentUser
+    ) {
+        ChapterDTO response = chapterService.updateChapter(newId,id,chapterRequest,currentUser);
+
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+
+    }
+
 
 }

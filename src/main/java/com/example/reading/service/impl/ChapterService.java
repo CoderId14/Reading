@@ -42,7 +42,7 @@ public class ChapterService implements IChapterService {
 
     private final RoleRepository roleRepository;
 
-    private final String CHAPTER_DONT_BELONG_TO_NEWS ="Chapter dont belong to news";
+
 
 
 
@@ -231,5 +231,31 @@ public class ChapterService implements IChapterService {
                 "You don't have permission to delete this chapter");
 
         throw new UnauthorizedException(apiResponse);
+    }
+
+    @Override
+//    Chỉ update được nội dung chứ không thay đổi được vị trí node chapter
+    public ChapterDTO updateChapter(Long newId,Long id, ChapterDTO chapterRequest, UserPrincipal currentUser) {
+        NewEntity newEntity = newRepository.findById(newId).orElseThrow(
+                () -> new ResourceNotFoundException(NEWS, ID, chapterRequest.getNewId()));
+
+        ChapterEntity chapterEntity = chapterRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException(CHAPTER, ID, id));
+
+        if(!chapterEntity.getNews().equals(newEntity)){
+            throw new WebapiException(HttpStatus.BAD_REQUEST, CHAPTER_DONT_BELONG_TO_NEWS);
+        }
+
+        if(newEntity.getCreatedBy().equals(currentUser.getUsername())
+        || currentUser.getAuthorities().contains(
+                new SimpleGrantedAuthority(roleRepository.findByName(ROLE_ADMIN).toString()))){
+
+            chapterEntity.setContent(chapterRequest.getContent());
+            chapterEntity.setDescription(chapterRequest.getDescription());
+            chapterRepository.save(chapterEntity);
+
+            return chapterConverter.toDTO(chapterEntity);
+        }
+        throw new WebapiException(HttpStatus.UNAUTHORIZED, "You don't have permission to update this chapter");
     }
 }

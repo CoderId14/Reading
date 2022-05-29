@@ -17,4 +17,6 @@ public interface IChapterService {
     ChapterDTO addChapter(ChapterDTO chapterRequest, UserPrincipal currentUser);
 
     ApiResponse deleteChapter(Long newId, Long id, UserPrincipal currentUser);
+
+    ChapterDTO updateChapter(Long newId, Long id,ChapterDTO chapterRequest, UserPrincipal currentUser);
 }
