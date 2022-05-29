@@ -1,11 +1,8 @@
 package com.example.reading.service.impl;
 
-import com.example.reading.api.ChapterController;
 import com.example.reading.api.output.ApiResponse;
 import com.example.reading.api.output.PagedResponse;
-import com.example.reading.api.output.ResponseObject;
 import com.example.reading.dto.ChapterDTO;
-import com.example.reading.dto.NewDTO;
 import com.example.reading.entity.ChapterEntity;
 import com.example.reading.entity.NewEntity;
 import com.example.reading.exception.ResourceNotFoundException;
@@ -19,7 +16,6 @@ import com.example.reading.repository.converter.ChapterConverter;
 import com.example.reading.service.IChapterService;
 import com.example.reading.utils.AppUtils;
 import lombok.RequiredArgsConstructor;
-import net.bytebuddy.implementation.bytecode.Throw;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -71,21 +67,25 @@ public class ChapterService implements IChapterService {
 
                 Long parentId = tempParentChapter.get().getId();
 
-                if (parentId != null){
-                    Optional<ChapterEntity> prevChapter = chapterRepository.findById(parentId);
-                    ChapterDTO responsePrev = chapterConverter.toDTO(Optional.ofNullable(prevChapter.get()).get());
 
-                    listChap.add(responsePrev);
-                }
+                    Optional<ChapterEntity> prevChapter = chapterRepository.findById(parentId);
+                    if(prevChapter.isPresent()){
+                        ChapterDTO responsePrev = chapterConverter.toDTO(prevChapter.get());
+
+                        listChap.add(responsePrev);
+                    }
+
             }
             if(tempChildChapter.isPresent()){
                 Long childId = tempChildChapter.get().getId();
 
-                if(childId != null){
-                    Optional<ChapterEntity> childChapter = chapterRepository.findById(chapterEntity.getChild().getId());
-                    ChapterDTO responseChild = chapterConverter.toDTO(Optional.ofNullable(childChapter.get()).get());
-                    listChap.add(responseChild);
-                }
+
+                    Optional<ChapterEntity> childChapter = chapterRepository.findById(childId);
+                    if(childChapter.isPresent()){
+                        ChapterDTO responseChild = chapterConverter.toDTO(childChapter.get());
+                        listChap.add(responseChild);
+                    }
+
             }
 
             return listChap;
@@ -109,9 +109,7 @@ public class ChapterService implements IChapterService {
                 :
                 chapters.getContent();
         List<ChapterDTO> result = new ArrayList<>();
-        contents.forEach(temp ->{
-            result.add(chapterConverter.toDTO(temp));
-        });
+        contents.forEach(temp -> result.add(chapterConverter.toDTO(temp)));
         return new PagedResponse<>(result, chapters.getNumber(), chapters.getSize(),
                 chapters.getTotalElements(), chapters.getTotalPages(), chapters.isLast());
     }
@@ -124,13 +122,16 @@ public class ChapterService implements IChapterService {
                 ){
 
 
-            NewEntity newEntity = newRepository.findById(chapterRequest.getNewId()).get();
+            NewEntity newEntity = newRepository.findById(chapterRequest.getNewId()).
+                    orElseThrow(() -> new ResourceNotFoundException(NEWS, ID, chapterRequest.getNewId()));
             if(newEntity.getCreatedBy().equals(currentUser.getUsername())
                     || currentUser.getAuthorities().contains(
                     new SimpleGrantedAuthority(roleRepository.findByName(ROLE_ADMIN).toString()))){
                 ChapterEntity chapterEntity = chapterConverter.toEntity(chapterRequest);
 
-                chapterEntity.setNews(newRepository.findById(chapterRequest.getNewId()).get());
+                chapterEntity.setNews(newRepository.findById(
+                        chapterRequest.getNewId()).orElseThrow(()
+                        -> new ResourceNotFoundException(NEWS, ID, chapterRequest.getNewId())));
 //                Phải kiểm tra null trước vì method findById không nhận id null
                 Long parentId = chapterRequest.getParentId();
 
@@ -171,9 +172,7 @@ public class ChapterService implements IChapterService {
 
                 chapterRepository.save(chapterEntity);
 
-                ChapterDTO result = chapterConverter.toDTO(chapterEntity);
-
-                return result;
+                return chapterConverter.toDTO(chapterEntity);
             }
 
         }

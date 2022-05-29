@@ -6,12 +6,14 @@ import com.example.reading.dto.RoleDTO;
 import com.example.reading.dto.UserDTO;
 import com.example.reading.entity.RoleEntity;
 import com.example.reading.entity.UserEntity;
+import com.example.reading.exception.ResourceNotFoundException;
 import com.example.reading.jwt.UserPrincipal;
 import com.example.reading.repository.RoleRepository;
 import com.example.reading.repository.UserRepository;
 import com.example.reading.repository.converter.RoleConverter;
 import com.example.reading.repository.converter.UserConverter;
 import com.example.reading.service.IUserService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,18 +24,22 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.*;
 
+import static com.example.reading.utils.AppConstants.CATEGORY;
+import static com.example.reading.utils.AppConstants.ID;
+
 @Service
 @Transactional
 @Slf4j
+@RequiredArgsConstructor
 public class UserService implements IUserService,UserDetailsService {
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private UserConverter userConverter;
-    @Autowired
-    private RoleRepository roleRepository;
-    @Autowired
-    private RoleConverter roleConverter;
+
+    private final UserRepository userRepository;
+
+    private final UserConverter userConverter;
+
+    private final RoleRepository roleRepository;
+
+    private final RoleConverter roleConverter;
 
 
     private final static String  USER_NOT_FOUND_MSG =
@@ -54,7 +60,8 @@ public class UserService implements IUserService,UserDetailsService {
 
     @Override
     public UserDTO findByUsername(String username) {
-        return userConverter.toDTO(userRepository.findByUsername(username).get());
+        return userConverter.toDTO(userRepository.findByUsername(username).
+                orElseThrow(()->new UsernameNotFoundException("User not found in the database")));
     }
 
     @Override
@@ -70,27 +77,26 @@ public class UserService implements IUserService,UserDetailsService {
         log.info("Adding role {} to user {}",roleName,userName);
         Optional<UserEntity> user = userRepository.findByUsername(userName);
         Optional<RoleEntity> role = roleRepository.findByName(roleName);
-        if(user.isPresent()){
+        if(user.isPresent() && role.isPresent()){
             user.get().getRoles().add(role.get());
         }
         else{
-            log.error("User not found in the database");
-            throw new UsernameNotFoundException("User not found in the database");
+            log.error("User or Role not found in the database");
+            throw new UsernameNotFoundException("User or Role not found in the database");
         }
     }
 
     @Override
     public void addRoleToUser(String userName, Set<String> roleName) {
         log.info("Adding role {} to user {}",roleName,userName);
+
         Optional<UserEntity> user = userRepository.findByUsername(userName);
         Set<RoleEntity> roles = new HashSet<>();
-        roleName.forEach(role ->{
-            roles.add(roleRepository.findByName(role).get());
-        });
+
+        roleName.forEach(role -> roles.add(roleRepository.findByName(role).
+                orElseThrow(() -> new ResourceNotFoundException(CATEGORY, ID, role))));
         if(user.isPresent()){
-            roles.forEach(role ->{
-                user.get().getRoles().add(role);
-            });
+            roles.forEach(role -> user.get().getRoles().add(role));
         }
         else{
             log.error("User not found in the database");
@@ -147,7 +153,7 @@ public class UserService implements IUserService,UserDetailsService {
             throws UsernameNotFoundException {
         UserEntity user = userRepository.findByUsernameOrEmail(usernameOrEmail,usernameOrEmail)
                 .orElseThrow(() -> new UsernameNotFoundException(
-                        String.format("User not found with this username or email: %s", usernameOrEmail)));;
+                        String.format("User not found with this username or email: %s", usernameOrEmail)));
 
         return UserPrincipal.create(user);
     }

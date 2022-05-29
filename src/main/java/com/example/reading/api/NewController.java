@@ -32,7 +32,7 @@ public class NewController {
 
 
     @GetMapping
-    public ResponseEntity<ResponseObject> showNew(
+    public ResponseEntity<ResponseObject> getAllNew(
             @RequestParam(value = "page", required = false,defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) Integer page,
             @RequestParam(value = "size", required = false,defaultValue = AppConstants.DEFAULT_PAGE_SIZE) Integer size
     ) {
