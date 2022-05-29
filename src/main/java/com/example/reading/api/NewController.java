@@ -87,7 +87,7 @@ public class NewController {
             @RequestBody NewUpdate model,
             @PathVariable("id") long id,
             @CurrentUser UserPrincipal currentUser) {
-        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/new/{id}").toUriString());
+        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/new/"+id).toUriString());
         return ResponseEntity.created(uri).body(new ResponseObject(
                 "update",
                 "Update new successfully id = "+id,

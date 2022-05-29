@@ -58,7 +58,7 @@ public class AuthController {
         return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
     }
     @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@Validated @RequestBody SignUpRequest signUpRequest) throws RoleNotFoundException {
+    public ResponseEntity<?> registerUser(@Validated @RequestBody SignUpRequest signUpRequest) {
         if(userService.existsByUsername(signUpRequest.getUsername())){
             ResponseEntity.badRequest()
                     .body(new MessageResponse("Error: Username already exists"));
@@ -98,7 +98,7 @@ public class AuthController {
         userService.save(user);
 //        Chưa biết tại sao chỗ này phải cần addRoleToUser. user.setRoles(roles) không lưu vào database. Hiếu 26/5/2022 đã khóc
 //        userService.addRoleToUser(user.getUsername(),strRoles);
-        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/user/{userId}")
+        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/user/signup")
                 .buildAndExpand(user.getId()).toUriString());
         return ResponseEntity.created(uri).body(new MessageResponse("User register successfully!"));
     }

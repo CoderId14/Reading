@@ -60,7 +60,7 @@ public class ChapterController {
     public ResponseEntity<ChapterDTO> addChapter(@Validated @RequestBody ChapterDTO chapterRequest,
                                                  @CurrentUser UserPrincipal currentUser) {
 
-        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/news/{newId}/id").toUriString());
+        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/news/"+chapterRequest.getNewId()+"/"+chapterRequest.getId()).toUriString());
         ChapterDTO result = chapterService.addChapter(chapterRequest, currentUser);
         return ResponseEntity.created(uri).body(result);
     }
