@@ -7,10 +7,14 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static com.example.reading.utils.AppConstants.MUST_NOT_BLANK;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -24,10 +28,13 @@ import java.util.Set;
 public class UserEntity extends BaseEntity {
 
     @Column
+    @NotBlank(message = "username " + MUST_NOT_BLANK)
     private String username;
     @Column
+    @NotBlank(message = "password " + MUST_NOT_BLANK)
     private String password;
     @Column
+    @Email
     private String email;
     @Column(columnDefinition = "varchar(50) default 'Nguyen Van A'")
     private String fullName;

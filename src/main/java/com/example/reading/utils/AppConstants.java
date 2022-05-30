@@ -34,5 +34,7 @@ public class AppConstants {
 
 	public static final String CHAPTER_DONT_BELONG_TO_NEWS ="Chapter dont belong to news";
 
+	public static final String MUST_NOT_BLANK ="Must not be blank";
+
 	public static final String YOU_DON_T_HAVE_PERMISSION_TO_MAKE_THIS_OPERATION = "You don't have permission to make this operation";
 }

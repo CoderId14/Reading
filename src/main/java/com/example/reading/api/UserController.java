@@ -55,6 +55,7 @@ public class UserController {
         return ResponseEntity.ok().body(userService.getUsers());
     }
     @PostMapping("/user/save")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<UserDTO> saveUser(@RequestBody UserDTO userDTO){
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/user/save").toUriString());
         return ResponseEntity.created(uri).body(userService.save(userDTO));
