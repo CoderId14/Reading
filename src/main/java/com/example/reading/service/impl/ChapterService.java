@@ -121,7 +121,6 @@ public class ChapterService implements IChapterService {
         if(newRepository.existsById(chapterRequest.getNewId())
                 ){
 
-
             NewEntity newEntity = newRepository.findById(chapterRequest.getNewId()).
                     orElseThrow(() -> new ResourceNotFoundException(NEWS, ID, chapterRequest.getNewId()));
             if(newEntity.getCreatedBy().equals(currentUser.getUsername())
