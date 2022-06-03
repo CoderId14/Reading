@@ -14,6 +14,6 @@ import static com.example.reading.utils.AppConstants.MUST_NOT_BLANK;
 @NoArgsConstructor
 public class CategoryDTO extends AbstractDTO<CategoryDTO>{
     @NotBlank(message = "Category code " + MUST_NOT_BLANK)
-    private String code;
     private String name;
+    private String description;
 }

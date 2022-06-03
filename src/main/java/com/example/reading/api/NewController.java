@@ -1,6 +1,7 @@
 package com.example.reading.api;
 
 
+import com.example.reading.api.input.NewsCreate;
 import com.example.reading.api.output.ApiResponse;
 import com.example.reading.api.output.NewUpdate;
 import com.example.reading.api.output.PagedResponse;
@@ -14,6 +15,7 @@ import com.example.reading.service.impl.UserService;
 import com.example.reading.utils.AppConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -69,16 +71,21 @@ public class NewController {
         ));
     }
 
-    @PostMapping()
+    @PostMapping(
+            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE,
+                    MediaType.APPLICATION_JSON_VALUE},
+            produces = {MediaType.APPLICATION_JSON_VALUE}
+    )
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
-    public ResponseEntity<ResponseObject> saveNew(
-            @RequestBody NewDTO model,
+    public ResponseEntity<ResponseObject> addNew(
+            @ModelAttribute @RequestBody NewsCreate model,
             @CurrentUser UserPrincipal currentUser) {
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/new").toUriString());
+        NewDTO response = newService.save(model,currentUser);
         return ResponseEntity.created(uri).body(new ResponseObject(
                 "created",
                 "Save new successfully",
-                newService.save(model,currentUser))) ;
+                response)) ;
     }
 
     @PutMapping("/{id}")

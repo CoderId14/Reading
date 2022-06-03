@@ -1,19 +1,18 @@
 package com.example.reading.service.impl;
 
+import com.example.reading.api.input.NewsCreate;
 import com.example.reading.api.output.ApiResponse;
 import com.example.reading.api.output.NewUpdate;
 import com.example.reading.api.output.PagedResponse;
 import com.example.reading.dto.NewDTO;
+import com.example.reading.entity.AttachmentEntity;
 import com.example.reading.entity.CategoryEntity;
 import com.example.reading.entity.NewEntity;
 import com.example.reading.entity.TagEntity;
 import com.example.reading.exception.ResourceNotFoundException;
 import com.example.reading.exception.UnauthorizedException;
 import com.example.reading.jwt.UserPrincipal;
-import com.example.reading.repository.CategoryRepository;
-import com.example.reading.repository.NewRepository;
-import com.example.reading.repository.RoleRepository;
-import com.example.reading.repository.TagRepository;
+import com.example.reading.repository.*;
 import com.example.reading.repository.converter.NewConverter;
 import com.example.reading.service.INewService;
 import com.example.reading.utils.AppUtils;
@@ -26,16 +25,16 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.*;
 
 import static com.example.reading.utils.AppConstants.*;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class NewService implements INewService {
 
     private final NewRepository newRepository;
@@ -47,27 +46,64 @@ public class NewService implements INewService {
     private final TagRepository tagRepository;
 
     private final RoleRepository roleRepository;
+
+    private final AttachmentService attachmentService;
     
     @Override
-    public NewDTO save(NewDTO newDTO, UserPrincipal currentUser) {
-        CategoryEntity categoryEntity = categoryRepository.findOneByCode(newDTO.getCategoryCode());
-        List<String> titles = new ArrayList<>();
-        newDTO.getTags().forEach(tag -> titles.add(tag.getTitle()));
-        List<TagEntity> tagEntities = new ArrayList<>();
-        titles.forEach(title -> tagEntities.add(tagRepository.findByTitle(title)));
+    public NewDTO save(NewsCreate request, UserPrincipal currentUser) {
 
-        NewEntity newEntity = newConverter.toEntity(newDTO);
-        newEntity.setTags(tagEntities);
-        newEntity.setCategory(categoryEntity);
+        AttachmentEntity attachmentEntity = null;
+
+        if(request.getThumbnail() != null)
+            attachmentEntity = attachmentService.saveImg(request.getThumbnail());
+
+        Set<CategoryEntity> categoryEntity = new HashSet<>();
+
+        for (String name: request.getCategory()
+             ) {
+            categoryEntity.add(categoryRepository.findByName(name).orElseThrow(
+                    () -> new ResourceNotFoundException(CATEGORY, "Name", name)
+            ));
+        }
+
+
+        Set<TagEntity> tagEntities = new HashSet<>();
+        for (String title: request.getTag()
+        ) {
+            tagEntities.add(tagRepository.findByTitle(title).orElseThrow(
+                    () -> new ResourceNotFoundException(TAG, "Title", title)
+            ));
+        }
+
+        NewEntity newEntity = NewEntity.builder()
+                .title(request.getTitle())
+                .content(request.getContent())
+                .categories(categoryEntity)
+                .shortDescription(request.getShortDescription())
+                .thumbnail(attachmentEntity)
+                .tags(tagEntities)
+                .build();
         newEntity = newRepository.save(newEntity);
         return newConverter.toDTO(newEntity);
     }
 
     @Override
-    public NewDTO update(long id,NewUpdate newUpdate, UserPrincipal currentUser) {
+    public NewDTO update(long id,NewUpdate request, UserPrincipal currentUser) {
         log.info("Update New");
 
-        Optional<CategoryEntity> categoryEntity = Optional.ofNullable(categoryRepository.findOneByCode(newUpdate.getCategoryCode()));
+        Set<CategoryEntity> categories = new HashSet<>();
+        for (String name: request.getCategories()
+        ) {
+            categories.add(categoryRepository.findByName(name).orElseThrow(
+                    () -> new ResourceNotFoundException(CATEGORY, "Name", name)));
+        }
+        Set<TagEntity> tags = new HashSet<>();
+        for (String title: request.getTags()
+        ) {
+            tags.add(tagRepository.findByTitle(title).orElseThrow(
+                    () -> new ResourceNotFoundException(TAG, "Title", title) ));
+        }
+
 
         NewEntity newEntity = newRepository.findById(id).
                 orElseThrow(() -> new ResourceNotFoundException(NEWS, ID, id));
@@ -76,11 +112,12 @@ public class NewService implements INewService {
         || currentUser.getAuthorities().contains(
                 new SimpleGrantedAuthority(roleRepository.findByName(ROLE_ADMIN).toString()))){
 
-            newEntity.setTitle(newUpdate.getTitle());
-            newEntity.setContent(newUpdate.getContent());
 
-            if(categoryEntity.isPresent())
-                newEntity.setCategory(categoryEntity.get());
+            newEntity.setTitle(request.getTitle());
+            newEntity.setContent(request.getContent());
+
+            if(!categories.isEmpty()) newEntity.setCategories(categories);
+            if(!tags.isEmpty()) newEntity.setTags(tags);
 
             newEntity = newRepository.save(newEntity);
 
@@ -145,7 +182,7 @@ public class NewService implements INewService {
                 .orElseThrow(() -> new ResourceNotFoundException(CATEGORY, ID, id));
 
         Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, CREATED_DATE);
-        Page<NewEntity> news = newRepository.findByCategoryId(category.getId(), pageable);
+        Page<NewEntity> news = newRepository.findByCategoriesIn(Collections.singleton(category), pageable);
 
         List<NewEntity> contents = news.getNumberOfElements() == 0 ?
                 Collections.emptyList()

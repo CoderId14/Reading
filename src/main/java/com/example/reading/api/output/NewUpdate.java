@@ -1,13 +1,20 @@
 package com.example.reading.api.output;
 
 import com.example.reading.entity.TagEntity;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class NewUpdate {
 
 	private String title;
@@ -16,8 +23,8 @@ public class NewUpdate {
 
 	private  String shortDescription;
 
-	private String categoryCode;
+	private Set<String> categories;
 
-	private List<TagEntity> tags;
+	private Set<String> tags;
 
 }

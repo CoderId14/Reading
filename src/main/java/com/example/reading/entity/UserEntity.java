@@ -3,8 +3,7 @@ package com.example.reading.entity;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -24,6 +23,9 @@ import static com.example.reading.utils.AppConstants.MUST_NOT_BLANK;
         @UniqueConstraint(columnNames = "email")
 })
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 //@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class UserEntity extends BaseEntity {
 

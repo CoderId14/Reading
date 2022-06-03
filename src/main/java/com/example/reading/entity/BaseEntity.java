@@ -3,6 +3,7 @@ package com.example.reading.entity;
 
 import com.example.reading.entity.supports.CustomDateSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;

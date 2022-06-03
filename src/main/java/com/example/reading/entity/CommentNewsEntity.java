@@ -3,8 +3,7 @@ package com.example.reading.entity;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -12,6 +11,9 @@ import javax.persistence.*;
 @Entity
 @Data
 @Table(name="commentsNews")
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 //@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class CommentNewsEntity extends BaseEntity{
 

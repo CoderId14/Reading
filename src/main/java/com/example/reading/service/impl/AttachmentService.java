@@ -70,6 +70,24 @@ public class AttachmentService implements IAttachmentService {
                 .contains(fileExtension.trim().toLowerCase());
     }
 
+    public AttachmentEntity saveImg(MultipartFile file) {
+        String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+        try {
+            if(isImageFile(file)){
+                AttachmentEntity attachmentEntity =
+                        new AttachmentEntity(fileName,file.getContentType(),
+                                file.getBytes());
+                return attachmentRepository.save(attachmentEntity);
+            }
+
+            throw new RuntimeException("Filename contain invalid path sequence" + fileName);
+
+        }
+        catch (Exception e){
+            throw new RuntimeException("Could not save file");
+        }
+    }
+
     public byte[] readFileContent(String fileId){
         AttachmentDTO data = attachmentConverter.toDTO(
                 attachmentRepository.findById(fileId).orElseThrow(

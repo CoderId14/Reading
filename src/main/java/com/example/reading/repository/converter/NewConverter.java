@@ -6,8 +6,8 @@ import com.example.reading.entity.NewEntity;
 import com.example.reading.entity.TagEntity;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class NewConverter {
@@ -16,33 +16,34 @@ public class NewConverter {
         entity.setTitle(dto.getTitle());
         entity.setContent(dto.getContent());
         entity.setShortDescription(dto.getShortDescription());
-        entity.setThumbnail(dto.getThumbnail());
 
         return entity;
     }
     public NewDTO toDTO(NewEntity entity){
-        NewDTO dto = new NewDTO();
-        if(entity.getId() != 0){
-            dto.setId(entity.getId());
+        Set<String> tags = new HashSet<>();
+        if(entity.getTags() != null){
+
+            entity.getTags().forEach(name -> tags.add(name.getTitle()));
         }
-        dto.setTitle(entity.getTitle());
-        dto.setContent(entity.getContent());
-        dto.setShortDescription(entity.getShortDescription());
-        dto.setThumbnail(entity.getThumbnail());
-        dto.setTags(entity.getTags());
-        dto.setCategoryCode(entity.getCategory().getCode());
+        Set<String> categories = new HashSet<>();
+        entity.getCategories().forEach(name -> categories.add(name.getName()));
+        NewDTO dto = NewDTO.builder()
+                .title(entity.getTitle())
+                .content(entity.getContent())
+                .shortDescription(entity.getShortDescription())
+                .thumbnail(entity.getThumbnail().getId())
+                .tags(tags)
+                .category(categories)
+                .user(entity.getCreatedBy())
+                .build();
+
+        dto.setId(entity.getId());
+        dto.setUser(entity.getCreatedBy());
         dto.setCreatedDate(entity.getCreatedDate());
         dto.setCreatedBy(entity.getCreatedBy());
         dto.setModifiedBy(entity.getModifiedBy());
         dto.setModifiedDate(entity.getModifiedDate());
         return dto;
     }
-    public NewEntity toEntity(NewDTO dto, NewEntity entity){
-        entity.setTitle(dto.getTitle());
-        entity.setContent(dto.getContent());
-        entity.setShortDescription(dto.getShortDescription());
-        entity.setThumbnail(dto.getThumbnail());
-        entity.setTags(dto.getTags());
-        return entity;
-    }
+
 }
