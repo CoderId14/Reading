@@ -34,7 +34,7 @@ import static com.example.reading.utils.AppConstants.*;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional
+
 public class NewService implements INewService {
 
     private final NewRepository newRepository;
@@ -59,7 +59,7 @@ public class NewService implements INewService {
 
         Set<CategoryEntity> categoryEntity = new HashSet<>();
 
-        for (String name: request.getCategory()
+        for (String name: request.getCategories()
              ) {
             categoryEntity.add(categoryRepository.findByName(name).orElseThrow(
                     () -> new ResourceNotFoundException(CATEGORY, "Name", name)
@@ -68,7 +68,7 @@ public class NewService implements INewService {
 
 
         Set<TagEntity> tagEntities = new HashSet<>();
-        for (String title: request.getTag()
+        for (String title: request.getTags()
         ) {
             tagEntities.add(tagRepository.findByTitle(title).orElseThrow(
                     () -> new ResourceNotFoundException(TAG, "Title", title)

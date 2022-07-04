@@ -33,7 +33,7 @@ public class NewConverter {
                 .shortDescription(entity.getShortDescription())
                 .thumbnail(entity.getThumbnail().getId())
                 .tags(tags)
-                .category(categories)
+                .categories(categories)
                 .user(entity.getCreatedBy())
                 .build();
 

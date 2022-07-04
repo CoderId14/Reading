@@ -13,7 +13,7 @@ import static com.example.reading.utils.AppConstants.MUST_NOT_BLANK;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RoleDTO extends AbstractDTO<RoleDTO> {
+public class RoleDTO extends AbstractDTO{
 
     @NotBlank(message = "Role Name " + MUST_NOT_BLANK)
     private String name;

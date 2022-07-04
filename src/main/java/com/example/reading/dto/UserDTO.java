@@ -17,7 +17,7 @@ import static com.example.reading.utils.AppConstants.MUST_NOT_BLANK;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDTO extends AbstractDTO<UserDTO>{
+public class UserDTO extends AbstractDTO{
 
     @NotBlank(message = "username " + MUST_NOT_BLANK)
     private String username;

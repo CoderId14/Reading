@@ -46,14 +46,18 @@ public class NewEntity extends BaseEntity{
     @JoinTable(name = "tag_new",
             joinColumns = @JoinColumn(name = "tag_id"),
             inverseJoinColumns = @JoinColumn(name = "new_id"))
+    @JsonIgnore
+    @EqualsAndHashCode.Exclude
     private Set<TagEntity> tags = new HashSet<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "news", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Exclude
     private List<ChapterEntity> chapters = new ArrayList<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "news", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Exclude
     private List<CommentNewsEntity> commentNews;
 
     @OneToOne(cascade = CascadeType.ALL)

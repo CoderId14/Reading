@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChapterDTO extends AbstractDTO<ChapterDTO>{
+public class ChapterDTO extends AbstractDTO{
     private String content;
 
     private String description;

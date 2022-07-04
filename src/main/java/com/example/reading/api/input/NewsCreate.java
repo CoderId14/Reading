@@ -16,6 +16,6 @@ public class NewsCreate {
     private String title;
     private String shortDescription;
     private String content;
-    private String[] category;
-    private String[] tag;
+    private String[] categories;
+    private String[] tags;
 }

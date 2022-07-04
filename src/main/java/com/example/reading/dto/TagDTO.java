@@ -12,7 +12,7 @@ import static com.example.reading.utils.AppConstants.MUST_NOT_BLANK;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TagDTO extends AbstractDTO<TagDTO>{
+public class TagDTO extends AbstractDTO{
     @NotBlank(message = "title " + MUST_NOT_BLANK)
     private String title;
     private String content;

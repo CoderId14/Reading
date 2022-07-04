@@ -17,7 +17,7 @@ import static com.example.reading.utils.AppConstants.MUST_NOT_BLANK;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class NewDTO extends AbstractDTO<NewDTO> {
+public class NewDTO extends AbstractDTO {
     @NotBlank(message = "New title " + MUST_NOT_BLANK)
     private String title;
 
@@ -26,7 +26,7 @@ public class NewDTO extends AbstractDTO<NewDTO> {
     private String shortDescription;
 
     @NotBlank(message = "categoryCode " + MUST_NOT_BLANK)
-    private Set<String> category;
+    private Set<String> categories;
 
     private Set<String> tags = new HashSet<>();
 
